@@ -14,7 +14,8 @@ Receiver::Receiver(string address, int rcvhwm, int sock_type) :
     m_sock.connect(address.c_str());
 }
 
-bsread_message Receiver::receive() {
+bsread_message Receiver::receive()
+{
     zmq::message_t msg;
     int more;
     size_t more_size = sizeof(more);
@@ -59,23 +60,18 @@ bsread_message Receiver::receive() {
     return bsread_message(main_header, data_header, channels_value);
 }
 
-
-main_header Receiver::get_main_header(void* data, size_t data_len) {
-
+main_header Receiver::get_main_header(void* data, size_t data_len)
+{
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
     json_reader.parse(json_string, root);
 
-    auto main_header = make_shared<bsread::main_header>();
-    main_header->pulse_id = root["pulse_id"].asUInt64();
-    main_header->dh_compression = root["dh_compression"].asString();
-    main_header->hash = root["hash"].asString();
-    main_header->htype = root["htype"].asString();
-    main_header->global_timestamp = timestamp(
-            root["global_timestamp"]["sec"].asUInt64(),
-            root["global_timestamp"]["ns"].asUInt64());
-
-    return main_header;
+    return {root["htype"].asString(),
+            root["pulse_id"].asUInt64(),
+            timestamp(root["global_timestamp"]["sec"].asUInt64(),
+                      root["global_timestamp"]["ns"].asUInt64()))
+            root["hash"].asString(),
+            root["dh_compression"].asString()};
 }
 
 std::shared_ptr<data_header> Receiver::get_data_header(void* data, size_t data_len, compression_type compression) {

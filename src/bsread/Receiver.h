@@ -42,11 +42,11 @@ namespace bsread {
     };
 
     struct main_header {
-        compression_type dh_compression;
-        timestamp global_timestamp;
-        std::string hash;
         std::string htype;
         uint64_t pulse_id;
+        timestamp global_timestamp;
+        std::string hash;
+        std::string dh_compression;
     };
 
     class Receiver {
