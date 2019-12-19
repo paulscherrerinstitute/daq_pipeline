@@ -1,7 +1,7 @@
 #ifndef DAQ_PIPELINE_IDATASTORE_H
 #define DAQ_PIPELINE_IDATASTORE_H
 
-#include "ChannelValue.h"
+#include "ChannelData.h"
 #include <vector>
 
 namespace bs_daq {
@@ -9,7 +9,7 @@ namespace bs_daq {
     class IDataStore {
     public:
         virtual ~IDataStore() = 0;
-        virtual void save_data(const std::vector<ChannelValue>& data) = 0;
+        virtual void save_data(const std::vector<ChannelData>& data) = 0;
     };
 
 }

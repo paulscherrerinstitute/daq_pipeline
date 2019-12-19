@@ -1,5 +1,5 @@
-#ifndef DAQ_PIPELINE_CHANNELVALUE_H
-#define DAQ_PIPELINE_CHANNELVALUE_H
+#ifndef DAQ_PIPELINE_CHANNELDATA_H
+#define DAQ_PIPELINE_CHANNELDATA_H
 
 #include <string>
 #include <vector>
@@ -7,7 +7,7 @@
 
 namespace bs_daq {
 
-    struct ChannelValue {
+    struct ChannelData {
 
         const std::string channel_name_;
         const int64_t pulse_id_mod_;
@@ -19,7 +19,7 @@ namespace bs_daq {
         const size_t data_n_bytes_;
         const std::unique_ptr<char> buffer_;
 
-        ChannelValue(
+        ChannelData(
                 std::string channel_name,
                 int64_t pulse_id_mod,
                 int64_t pulse_id,
@@ -41,4 +41,4 @@ namespace bs_daq {
 
 }
 
-#endif //DAQ_PIPELINE_CHANNELVALUE_H
+#endif //DAQ_PIPELINE_CHANNELDATA_H
