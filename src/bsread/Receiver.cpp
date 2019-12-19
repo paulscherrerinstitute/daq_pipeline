@@ -23,10 +23,16 @@ bsread_message Receiver::receive()
     m_sock.recv(&msg);
     m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
+# TODO: Add more descriptive errors.
     if (!more)
         throw runtime_error("Data header expected after main header.");
 
     auto main_header = get_main_header(msg.data(), msg.size());
+
+    if (main_header.htype != "bsread-1.0")
+        throw runtime_error("Wrong protocol for this receiver.");
+    if (main_header.dh_compression != "none")
+        throw runtime_error("Dataheader compression not supported.");
 
     m_sock.recv(&msg);
     m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
@@ -34,19 +40,22 @@ bsread_message Receiver::receive()
     if (main_header->hash != current_data_header_hash_) {
         data_header_ = get_data_header(
                 msg.data(), msg.size(), main_header->dh_compression);
+        current_data_header_hash_ = main_header.hash;
     }
 
     auto channels_value = make_shared<unordered_map<string, data_channel_value>>();
 
     for (auto& channel_header : data_header->channels) {
 
-        if (!more) throw runtime_error("Invalid message format. The multipart message terminated prematurely.");
+        if (!more)
+            throw runtime_error("Invalid message format. The multipart message terminated prematurely.");
 
         m_sock.recv(&msg);
         m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
         auto channel_value = get_channel_data(msg.data(), msg.size(), channel_header.compression);
 
-        if (!more) throw runtime_error("Invalid message format. The multipart message terminated prematurely.");
+        if (!more)
+            throw runtime_error("Invalid message format. The multipart message terminated prematurely.");
 
         m_sock.recv(&msg);
         m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
@@ -55,7 +64,8 @@ bsread_message Receiver::receive()
         channels_value->emplace(channel_header.name, channel_value);
     }
 
-    if (more) throw runtime_error("Invalid message format. The multipart message has too many parts. Check sender.");
+    if (more)
+        throw runtime_error("Invalid message format. The multipart message has too many parts. Check sender.");
 
     return bsread_message(main_header, data_header, channels_value);
 }
