@@ -13,5 +13,5 @@ include_directories("external")
 include_directories("${PROJECT_BINARY_DIR}")
 
 
-add_executable(store_pipeline src/main.cpp src/ZmqReceiver.cpp src/ZmqReceiver.hpp src/CassandraWriter.cpp
-        src/CassandraWriter.h src/config.h src/version.h.in src/IDataReceiver.h src/ChannelValue.cpp src/ChannelValue.h src/IDataStore.h src/IStatsProvider.h)
+add_executable(store_pipeline src/main.cpp
+        src/config.h src/version.h.in src/IDataReceiver.h src/ChannelValue.cpp src/ChannelValue.h src/IDataStore.h src/IStatsProvider.h)
