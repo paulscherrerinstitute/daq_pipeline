@@ -22,7 +22,7 @@ namespace bs_daq {
         const std::string encoding_;
         const std::string compression_;
         const size_t max_data_n_bytes_;
-        const std::unique_ptr<char*> buffer_;
+        const std::unique_ptr<char> buffer_;
 
         ChannelValue(std::string channel_name,
                      int64_t pulse_id_mod,

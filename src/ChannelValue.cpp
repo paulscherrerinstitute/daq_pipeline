@@ -1,4 +1,3 @@
-#include <sstream>
 #include "ChannelValue.h"
 
 bs_daq::ChannelValue::ChannelValue(
@@ -18,7 +17,7 @@ bs_daq::ChannelValue::ChannelValue(
               encoding_(encoding),
               compression_(compression),
               max_data_n_bytes_(max_data_n_bytes),
-              buffer_(std::make_unique<char*>(max_data_n_bytes_)),
+              buffer_(std::make_unique<char>(max_data_n_bytes_)),
               data_n_bytes_(0) {}
 
 
