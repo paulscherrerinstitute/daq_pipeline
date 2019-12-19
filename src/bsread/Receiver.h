@@ -14,8 +14,7 @@ namespace bsread {
 
     struct data_channel_value {
 
-        data_channel_value() : data(nullptr), data_len(0)
-        {}
+        data_channel_value() : data(nullptr), data_len(0) {}
 
         data_channel_value(char* data, size_t data_len) :
                 data(data, std::default_delete<char[]>()),
@@ -50,20 +49,6 @@ namespace bsread {
         uint64_t pulse_id;
     };
 
-    struct bsread_message {
-        bsread_message(std::shared_ptr<main_header> main_header,
-                       std::shared_ptr<data_header> data_header,
-                       std::shared_ptr<std::unordered_map<std::string, data_channel_value>> channels_value):
-                main_header(move(main_header)),
-                data_header(move(data_header)),
-                channels_value(move(channels_value))
-        {};
-
-        std::shared_ptr<main_header> main_header;
-        std::shared_ptr<data_header> data_header;
-        std::shared_ptr<std::unordered_map<std::string, data_channel_value>> channels_value;
-    };
-
     class Receiver {
 
         zmq::context_t m_ctx;
@@ -83,7 +68,7 @@ namespace bsread {
         data_channel_value get_channel_data(void* data, size_t data_len, compression_type compression);
         std::shared_ptr<timestamp> get_channel_timestamp(void* data, size_t data_len);
 
-        std::shared_ptr<data_header>data_header_;
+        std::shared_ptr<data_header> data_header_;
     };
 }
 
