@@ -9,6 +9,7 @@ set (DAQ_PIPELINE_VERSION "1.0.0")
 #        "${PROJECT_BINARY_DIR}/version.h"
 #)
 
+include_directories("external")
 include_directories("${PROJECT_BINARY_DIR}")
 
 
