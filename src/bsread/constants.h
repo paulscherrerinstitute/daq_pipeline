@@ -12,40 +12,6 @@ namespace bsread {
     // 200 characters for 200 channels.
     static const size_t MAX_DATA_HEADER_LEN = 200 * 200;
 
-    enum compression_type {
-            compression_none,
-            compression_lz4,
-            compression_bslz4
-    };
-
-    static const std::string compression_type_name[] = {
-            "none",
-            "lz4",
-            "bitshuffle_lz4"
-    };
-
-    static const std::map<std::string, compression_type> compression_type_mapping = {
-            {"none", compression_none},
-            {"lz4", compression_lz4},
-            {"bitshuffle_lz4", compression_bslz4},
-    };
-
-    enum endianess {
-        little,
-        big,
-        auto_detect
-    };
-
-    static const std::string endianess_name[] = {
-            "little",
-            "big"
-    };
-
-    static const std::map<std::string, endianess> endianess_mapping = {
-            {"little", little},
-            {"big", big},
-    };
-
     struct timestamp{
 
         timestamp(void): sec(0), nsec(0) {};
