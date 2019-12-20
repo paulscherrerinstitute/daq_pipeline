@@ -6,11 +6,15 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include "json.h"
-
-#include "constants.h"
 
 namespace bsread {
+
+    struct timestamp {
+        const uint64_t sec; // seconds past UNIX epoch (1/1/1970)
+        const uint64_t nsec;  // nanosecond offset since last full second
+
+        timestamp(uint64_t sec, uint64_t nsec) : sec(sec), nsec(nsec) {};
+    };
 
     struct main_header {
         std::string htype;
@@ -18,6 +22,21 @@ namespace bsread {
         timestamp global_timestamp;
         std::string hash;
         std::string dh_compression;
+    };
+
+    static const std::map<std::string, size_t> bsdata_type_n_bytes = {
+            {"string",  1},
+            {"bool",    1},
+            {"float64", 8},
+            {"float32", 4},
+            {"int8",    1},
+            {"uint8",   1},
+            {"int16",   2},
+            {"uint16",  2},
+            {"int32",   4},
+            {"uint32",  4},
+            {"int64",   8},
+            {"uint64",  8},
     };
 
     class Receiver {
@@ -30,14 +49,13 @@ namespace bsread {
 
     public:
         Receiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
-        bsread::bsread_message receive();
         virtual ~Receiver() = default;
+
+        bsread::bsread_message receive();
 
     private:
         main_header get_main_header(void* data, size_t data_len);
-        data_header get_data_header(void* data, size_t data_len, compression_type compression);
-        data_channel_value get_channel_data(void* data, size_t data_len, compression_type compression);
-        std::shared_ptr<timestamp> get_channel_timestamp(void* data, size_t data_len);
+        data_header get_data_header(void* data, size_t data_len);
 
         std::string channels_data_hash_;
         std::vector<std::unique_ptr<ChannelData>> channels_data_;
