@@ -28,7 +28,7 @@ const bs_daq::MessageData& Receiver::get_data()
 
     auto main_header = get_main_header(msg.data(), msg.size());
 
-    if (main_header.htype != "bsread-1.0")
+    if (main_header.htype != "bsr_m-1.1")
         throw runtime_error("Wrong protocol for this receiver.");
     if (main_header.dh_compression != "none")
         throw runtime_error("Data header compression not supported.");
@@ -90,28 +90,32 @@ bs_daq::MessageData Receiver::get_data_header(void* data, size_t data_len) {
     auto json_string = string(static_cast<char*>(data), data_len);
     json_reader.parse(json_string, root);
 
-    vector
-
-    auto data_header = make_shared<bsread::data_header>();
-    data_header->htype = root["htype"].asString();
+    bs_daq::MessageData message_data(root["channels"].size());
 
     for(Json::Value& channel : root["channels"]) {
 
-        data_channel_header channel_definition;
-        channel_definition.name = channel["name"].asString();
-        channel_definition.type = bsdata_type_mapping.at(channel.get("type", "float64").asString());
-
+        size_t n_data_points = 1;
+        std::vector<uint32_t> shape(2);
         for(Json::Value& dimension : channel.get("shape", {1})) {
-            channel_definition.shape.push_back(dimension.asUInt());
+            auto dimension_len = dimension.asUInt();
+
+            n_data_points *= dimension_len;
+            shape.push_back(dimension_len);
         }
 
-        channel_definition.compression = compression_type_mapping.at(channel.get("compression", "none").asString());
-        channel_definition.endianess = endianess_mapping.at(channel.get("encoding", "little").asString());
-        channel_definition.modulo = channel.get("modulo", 1).asUInt();
-        channel_definition.offset = channel.get("offset", 0).asUInt();
+        auto type = channel.get("type", "float64").asString()
+        size_t buffer_n_bytes = n_data_points * bsdata_type_n_bytes.at(type);
 
-        data_header->channels.push_back(channel_definition);
+        message_data.push_back(
+                make_unique<ChannelData>(
+                    channel["name"].asString(),
+                    type,
+                    shape,
+                    channel.get("encoding", "little").asString(),
+                    channel.get("compression", "none").asString()
+                    buffer_n_bytes)
+        );
     }
 
-    return data_header;
+    return message_data;
 }
