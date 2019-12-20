@@ -23,7 +23,6 @@ bsread_message Receiver::receive()
     m_sock.recv(&msg);
     m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
-# TODO: Add more descriptive errors.
     if (!more)
         throw runtime_error("Data header expected after main header.");
 
@@ -32,40 +31,43 @@ bsread_message Receiver::receive()
     if (main_header.htype != "bsread-1.0")
         throw runtime_error("Wrong protocol for this receiver.");
     if (main_header.dh_compression != "none")
-        throw runtime_error("Dataheader compression not supported.");
+        throw runtime_error("Data header compression not supported.");
 
     m_sock.recv(&msg);
     m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
     if (main_header->hash != current_data_header_hash_) {
-        data_header_ = get_data_header(
-                msg.data(), msg.size(), main_header->dh_compression);
-        current_data_header_hash_ = main_header.hash;
+        channels_data_ = get_data_header(msg.data(), msg.size());
+        channels_data_hash_ = main_header.hash;
     }
 
-    auto channels_value = make_shared<unordered_map<string, data_channel_value>>();
-
-    for (auto& channel_header : data_header->channels) {
+    for (auto channel_data : channels_data_) {
 
         if (!more)
-            throw runtime_error("Invalid message format. The multipart message terminated prematurely.");
+            throw runtime_error("Invalid message format. The multipart"
+                                " message terminated prematurely.");
 
-        m_sock.recv(&msg);
+        size_t recv_n_bytes = m_sock.recv(channel_data.buffer_.get(),
+                                          channel_data.data_n_bytes_);
         m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
-        auto channel_value = get_channel_data(msg.data(), msg.size(), channel_header.compression);
+
+        if
+
+        if (recv_n_bytes > channel_data.data_n_bytes_)
+            throw runtime_error("Received more bytes than expected.")
 
         if (!more)
-            throw runtime_error("Invalid message format. The multipart message terminated prematurely.");
+            throw runtime_error("Invalid message format. The multipart"
+                                " message terminated prematurely.");
 
-        m_sock.recv(&msg);
+        // We omit the channel timestamp because we do not use it.
+        m_sock.recv(nullptr, 0);
         m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
-        channel_value.timestamp = get_channel_timestamp(msg.data(), msg.size());
-
-        channels_value->emplace(channel_header.name, channel_value);
     }
 
     if (more)
-        throw runtime_error("Invalid message format. The multipart message has too many parts. Check sender.");
+        throw runtime_error("Invalid message format. The multipart message"
+                            " has too many parts. Check sender.");
 
     return bsread_message(main_header, data_header, channels_value);
 }
@@ -84,11 +86,7 @@ main_header Receiver::get_main_header(void* data, size_t data_len)
             root["dh_compression"].asString()};
 }
 
-std::shared_ptr<data_header> Receiver::get_data_header(void* data, size_t data_len, compression_type compression) {
-
-    if (compression != compression_none) {
-        throw runtime_error("Data header de-compression not implemented yet. Use compression 'none'.");
-    }
+data_header Receiver::get_data_header(void* data, size_t data_len) {
 
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
@@ -118,20 +116,6 @@ std::shared_ptr<data_header> Receiver::get_data_header(void* data, size_t data_l
     return data_header;
 }
 
-data_channel_value Receiver::get_channel_data(void* data, size_t data_len, compression_type compression) {
-    if (data_len == 0) {
-        return data_channel_value(nullptr, 0);
-    }
-
-    if (compression != compression_none) {
-        throw runtime_error("Data de-compression not implemented yet. Use compression 'none'.");
-    }
-
-    char* buffer_data = new char[data_len];
-    memcpy(buffer_data, data, data_len);
-
-    return data_channel_value(buffer_data, data_len);
-}
 
 shared_ptr<timestamp> Receiver::get_channel_timestamp(void* data, size_t data_len) {
     if (data_len == 0) {
