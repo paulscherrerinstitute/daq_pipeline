@@ -1,15 +1,15 @@
 #ifndef DAQ_PIPELINE_DATARECEIVER_H
 #define DAQ_PIPELINE_DATARECEIVER_H
 
-#include "ChannelData.h"
 #include <vector>
+#include "ChannelData.h"
 
 namespace bs_daq {
 
     class IDataReceiver {
     public:
         virtual ~IDataReceiver() = 0;
-        virtual std::shared_ptr<ChannelData> get_data();
+        virtual const std::vector<ChannelData>& get_data();
     };
 
 }
