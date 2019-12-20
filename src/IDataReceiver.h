@@ -9,7 +9,7 @@ namespace bs_daq {
     class IDataReceiver {
     public:
         virtual ~IDataReceiver() = 0;
-        virtual const std::vector<ChannelData>& get_data();
+        virtual const std::vector<std::unique_ptr<ChannelData>>& get_data();
     };
 
 }
