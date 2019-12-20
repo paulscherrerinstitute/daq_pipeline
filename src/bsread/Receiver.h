@@ -59,8 +59,8 @@ namespace bsread {
         main_header get_main_header(void* data, size_t data_len);
         bs_daq::MessageData get_data_header(void* data, size_t data_len);
 
+        bs_daq::MessageData channels_data_;
         std::string channels_data_hash_;
-        bs_daq::MessageData message_data_;
     };
 }
 

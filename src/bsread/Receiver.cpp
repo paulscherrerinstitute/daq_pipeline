@@ -47,6 +47,8 @@ const bs_daq::MessageData& Receiver::get_data()
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
 
+        data.pulse_id =  main_header.pulse_id;
+
         data.recv_n_bytes_ = m_sock.recv(data.buffer_.get(),
                                          data.buffer_n_bytes_);
         m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
