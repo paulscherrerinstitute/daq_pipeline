@@ -53,14 +53,14 @@ namespace bsread {
         Receiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
         virtual ~Receiver() = default;
 
-        const std::vector<std::unique_ptr<ChannelData>>& get_data();
+        const bs_daq::MessageData& get_data();
 
     private:
         main_header get_main_header(void* data, size_t data_len);
-        data_header get_data_header(void* data, size_t data_len);
+        bs_daq::MessageData get_data_header(void* data, size_t data_len);
 
         std::string channels_data_hash_;
-        std::vector<std::unique_ptr<ChannelData>> channels_data_;
+        bs_daq::MessageData message_data_;
     };
 }
 

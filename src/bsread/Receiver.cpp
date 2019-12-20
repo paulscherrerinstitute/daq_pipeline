@@ -4,7 +4,6 @@
 #include <iostream>
 
 using namespace std;
-using namespace bsread;
 
 Receiver::Receiver(string address, int rcvhwm, int sock_type) :
         m_ctx(1),
@@ -15,7 +14,7 @@ Receiver::Receiver(string address, int rcvhwm, int sock_type) :
     m_sock.connect(address.c_str());
 }
 
-const std::vector<std::unique_ptr<ChannelData>>& Receiver::get_data()
+const bs_daq::MessageData& Receiver::get_data()
 {
     zmq::message_t msg;
     int more;
@@ -85,11 +84,13 @@ main_header Receiver::get_main_header(void* data, size_t data_len)
             root["dh_compression"].asString()};
 }
 
-data_header Receiver::get_data_header(void* data, size_t data_len) {
+bs_daq::MessageData Receiver::get_data_header(void* data, size_t data_len) {
 
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
     json_reader.parse(json_string, root);
+
+    vector
 
     auto data_header = make_shared<bsread::data_header>();
     data_header->htype = root["htype"].asString();
