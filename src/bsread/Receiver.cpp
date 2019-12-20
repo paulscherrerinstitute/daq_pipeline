@@ -15,7 +15,7 @@ Receiver::Receiver(string address, int rcvhwm, int sock_type) :
     m_sock.connect(address.c_str());
 }
 
-bsread_message Receiver::receive()
+const std::vector<std::unique_ptr<ChannelData>>& Receiver::get_data()
 {
     zmq::message_t msg;
     int more;

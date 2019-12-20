@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 
+#include "IDataReceiver.h"
+
 namespace bsread {
 
     struct timestamp {
@@ -39,7 +41,7 @@ namespace bsread {
             {"uint64",  8},
     };
 
-    class Receiver {
+    class Receiver : public bs_daq::IDataReceiver {
 
         zmq::context_t m_ctx;
         zmq::socket_t m_sock;
@@ -51,7 +53,7 @@ namespace bsread {
         Receiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
         virtual ~Receiver() = default;
 
-        bsread::bsread_message receive();
+        const std::vector<std::unique_ptr<ChannelData>>& get_data();
 
     private:
         main_header get_main_header(void* data, size_t data_len);
