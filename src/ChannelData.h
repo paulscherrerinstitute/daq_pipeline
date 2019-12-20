@@ -21,12 +21,11 @@ namespace bs_daq {
 
         // Attributes set for each received message.
         int64_t pulse_id_ = 0;
-        size_t data_n_bytes_ = 0;
+        size_t recv_n_bytes_ = 0;
 
         ChannelData(
                 std::string channel_name,
                 int64_t pulse_id_mod,
-                int64_t pulse_id,
                 std::string type,
                 const std::vector<uint32_t>& shape,
                 std::string encoding,
