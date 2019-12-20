@@ -11,7 +11,6 @@ namespace bs_daq {
 
         // Attributes set on data header change.
         const std::string channel_name_;
-        const int64_t pulse_id_mod_;
         const std::string type_;
         const std::vector<uint32_t> shape_;
         const std::string encoding_;
@@ -25,14 +24,12 @@ namespace bs_daq {
 
         ChannelData(
                 std::string channel_name,
-                int64_t pulse_id_mod,
                 std::string type,
                 const std::vector<uint32_t>& shape,
                 std::string encoding,
                 std::string compression,
                 size_t buffer_n_bytes)
                 : channel_name_(channel_name),
-                  pulse_id_mod_(pulse_id_mod),
                   type_(type),
                   shape_(shape),
                   encoding_(encoding),
