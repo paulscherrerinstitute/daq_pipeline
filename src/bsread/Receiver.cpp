@@ -41,19 +41,17 @@ bsread_message Receiver::receive()
         channels_data_hash_ = main_header.hash;
     }
 
-    for (auto channel_data : channels_data_) {
+    for (auto data : channels_data_) {
 
         if (!more)
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
 
-        size_t recv_n_bytes = m_sock.recv(channel_data.buffer_.get(),
-                                          channel_data.data_n_bytes_);
+        data.recv_n_bytes_ = m_sock.recv(data.buffer_.get(),
+                                         data.buffer_n_bytes_);
         m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
-        if
-
-        if (recv_n_bytes > channel_data.data_n_bytes_)
+        if (data.recv_n_bytes > data.buffer_n_bytes_)
             throw runtime_error("Received more bytes than expected.")
 
         if (!more)
@@ -69,7 +67,7 @@ bsread_message Receiver::receive()
         throw runtime_error("Invalid message format. The multipart message"
                             " has too many parts. Check sender.");
 
-    return bsread_message(main_header, data_header, channels_value);
+    return channels_data_;
 }
 
 main_header Receiver::get_main_header(void* data, size_t data_len)
@@ -114,19 +112,4 @@ data_header Receiver::get_data_header(void* data, size_t data_len) {
     }
 
     return data_header;
-}
-
-
-shared_ptr<timestamp> Receiver::get_channel_timestamp(void* data, size_t data_len) {
-    if (data_len == 0) {
-        return nullptr;
-    }
-
-    if (data_len != sizeof(timestamp)) {
-        throw runtime_error("Timestamp length incorrect. Check sender.");
-    }
-
-    auto channel_timestamp = static_cast<uint64_t*>(data);
-
-    return make_shared<timestamp>(channel_timestamp[0], channel_timestamp[1]);
 }
