@@ -104,7 +104,7 @@ bs_daq::MessageData Receiver::get_data_header(void* data, size_t data_len) {
         }
 
         auto type = channel.get("type", "float64").asString()
-        size_t buffer_n_bytes = n_data_points * bsdata_type_n_bytes.at(type);
+        size_t buffer_n_bytes = n_data_points * bs_type_n_bytes.at(type);
 
         message_data.push_back(
                 make_unique<ChannelData>(

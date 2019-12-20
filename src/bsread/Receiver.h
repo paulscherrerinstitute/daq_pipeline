@@ -26,7 +26,7 @@ namespace bsread {
         std::string dh_compression;
     };
 
-    static const std::map<std::string, size_t> bsdata_type_n_bytes = {
+    static const std::map<std::string, size_t> bs_type_n_bytes = {
             {"string",  1},
             {"bool",    1},
             {"float64", 8},
