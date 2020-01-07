@@ -5,7 +5,8 @@
 
 using namespace std;
 
-Receiver::Receiver(string address, int rcvhwm, int sock_type) :
+
+bsread::Receiver::Receiver(string address, int rcvhwm, int sock_type) :
         m_ctx(1),
         m_sock(m_ctx, sock_type),
         m_address(address)
@@ -14,7 +15,7 @@ Receiver::Receiver(string address, int rcvhwm, int sock_type) :
     m_sock.connect(address.c_str());
 }
 
-const bs_daq::MessageData& Receiver::get_data()
+const bs_daq::MessageData& bsread::Receiver::get_data()
 {
     zmq::message_t msg;
     int more;
@@ -36,18 +37,18 @@ const bs_daq::MessageData& Receiver::get_data()
     m_sock.recv(&msg);
     m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
-    if (main_header->hash != current_data_header_hash_) {
+    if (main_header.hash != channels_data_hash_) {
         channels_data_ = get_data_header(msg.data(), msg.size());
         channels_data_hash_ = main_header.hash;
     }
 
-    for (auto data : channels_data_) {
+    for (auto& data : channels_data_) {
 
         if (!more)
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
 
-        data.pulse_id =  main_header.pulse_id;
+        data.pulse_id_ =  main_header.pulse_id;
 
         data.recv_n_bytes_ = m_sock.recv(data.buffer_.get(),
                                          data.buffer_n_bytes_);
@@ -72,7 +73,7 @@ const bs_daq::MessageData& Receiver::get_data()
     return channels_data_;
 }
 
-main_header Receiver::get_main_header(void* data, size_t data_len)
+bsread::main_header bsread::Receiver::get_main_header(void* data, size_t data_len)
 {
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
@@ -81,12 +82,12 @@ main_header Receiver::get_main_header(void* data, size_t data_len)
     return {root["htype"].asString(),
             root["pulse_id"].asUInt64(),
             timestamp(root["global_timestamp"]["sec"].asUInt64(),
-                      root["global_timestamp"]["ns"].asUInt64()))
+                      root["global_timestamp"]["ns"].asUInt64()),
             root["hash"].asString(),
             root["dh_compression"].asString()};
 }
 
-bs_daq::MessageData Receiver::get_data_header(void* data, size_t data_len) {
+bs_daq::MessageData bsread::Receiver::get_data_header(void* data, size_t data_len) {
 
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
@@ -105,16 +106,16 @@ bs_daq::MessageData Receiver::get_data_header(void* data, size_t data_len) {
             shape.push_back(dimension_len);
         }
 
-        auto type = channel.get("type", "float64").asString()
+        auto type = channel.get("type", "float64").asString();
         size_t buffer_n_bytes = n_data_points * bs_type_n_bytes.at(type);
 
         message_data.push_back(
-                make_unique<ChannelData>(
+                make_unique<bs_daq::ChannelData>(
                     channel["name"].asString(),
                     type,
                     shape,
                     channel.get("encoding", "little").asString(),
-                    channel.get("compression", "none").asString()
+                    channel.get("compression", "none").asString(),
                     buffer_n_bytes)
         );
     }
