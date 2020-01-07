@@ -6,6 +6,8 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_map>
+#include <json.h>
 
 #include "../IDataReceiver.h"
 
@@ -26,7 +28,7 @@ namespace bsread {
         std::string dh_compression;
     };
 
-    static const std::map<std::string, size_t> bs_type_n_bytes = {
+    static const std::unordered_map<std::string, size_t> bs_type_n_bytes = {
             {"string",  1},
             {"bool",    1},
             {"float64", 8},
