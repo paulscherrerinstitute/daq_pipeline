@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-#include "IDataReceiver.h"
+#include "../IDataReceiver.h"
 
 namespace bsread {
 
