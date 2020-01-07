@@ -4,15 +4,10 @@ set(CMAKE_CXX_STANDARD 14)
 
 set (DAQ_PIPELINE_VERSION "1.0.0")
 
-#configure_file (
-#        "${PROJECT_SOURCE_DIR}/version.h.in"
-#        "${PROJECT_BINARY_DIR}/version.h"
-#)
 
-include_directories("external")
 include_directories("${PROJECT_BINARY_DIR}")
 
-FILE(GLOB sources ${CMAKE_SOURCE_DIR}/src/*.cpp)
+add_subdirectory("src")
+add_subdirectory("test")
 
-add_executable(store_pipeline src/main.cpp
-        src/config.h src/version.h.in src/IDataReceiver.h src/ChannelData.h src/IDataStore.h src/IStatsProvider.h)
+enable_testing()
