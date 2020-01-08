@@ -11,6 +11,9 @@ namespace scylla {
     protected:
         CassCluster* cluster_ = NULL;
         CassSession* session_ = NULL;
+        CassPrepared* prepared_insert_ = NULL;
+
+        void free_class_member_cass_objects();
 
     public:
         Store(const std::string node_addresses);
