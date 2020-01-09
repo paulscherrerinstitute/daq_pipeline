@@ -4,46 +4,83 @@ using namespace std;
 
 scylla::Store::Store(const std::string node_addresses)
 {
-    session_ = cass_session_new();
+    session_ = {
+            cass_session_new(),
+            [](CassSession *p){ cass_session_free(p); }
+    };
 
-    cluster_ = cass_cluster_new();
-    cass_cluster_set_contact_points(cluster_, node_addresses.c_str());
-    cass_cluster_set_token_aware_routing(cluster_, cass_true);
+    cluster_ = {
+            cass_cluster_new(),
+            [](CassCluster *p){ cass_cluster_free(p); }
+    };
 
-    CassFuture* connect_future = cass_session_connect(session_, cluster_);
-    auto connection_status = cass_future_error_code(connect_future);
-    cass_future_free(connect_future);
+    cass_cluster_set_contact_points(cluster_.get(), node_addresses.c_str());
+    cass_cluster_set_token_aware_routing(cluster_.get(), cass_true);
+
+    cass_ptr<CassFuture> connect_future({
+        cass_session_connect(session_.get(), cluster_.get()),
+        [](CassFuture *p){ cass_future_free(p); }
+    });
+    auto connection_status = cass_future_error_code(connect_future.get());
 
     if (connection_status != CASS_OK) {
-        free_class_member_cass_objects();
+
 // TODO: In case this happens often, extract the error message with cass_future_error_message.
-        throw std::runtime_error("Cannot connect to cluster. Please check network and provided hosts.");
+        throw runtime_error("Cannot connect to cluster. Please check network and provided hosts.");
     }
 
+    cass_ptr<CassFuture> prepared_future = {
+            cass_session_prepare(session_.get(), INSERT_STATEMENT.c_str()),
+            [](CassFuture *p){ cass_future_free(p); }
+    };
+    auto prepared_status = cass_future_error_code(prepared_future.get());
 
-}
-
-scylla::Store::~Store()
-{
-    free_class_member_cass_objects();
-}
-
-void scylla::Store::free_class_member_cass_objects()
-{
-    if (prepared_insert_ != NULL) {
-        cass_prepared_free(prepared_insert_);
+    if (prepared_status != CASS_OK) {
+// TODO: Maybe a more detailed error message?
+        throw runtime_error("Cannot prepare statement on cluster.");
     }
 
-    if (cluster_ != NULL) {
-        cass_cluster_free(cluster_);
-    }
-
-    if (session_ != NULL) {
-        cass_session_free(session_);
-    }
+    prepared_insert_ = {
+            cass_future_get_prepared(prepared_future.get()),
+            [](const CassPrepared *p){ cass_prepared_free(p); }
+    };
 }
 
 void scylla::Store::save_data(const std::vector<bs_daq::ChannelData>& data)
 {
-    return;
+    for (auto& channel_data : data){
+        cass_ptr<CassStatement> statement = {
+                cass_prepared_bind(prepared_insert_.get()),
+                [](CassStatement *p){ cass_statement_free(p); }
+        };
+
+        cass_statement_bind_string_by_name(statement.get(),
+                "channel_name", channel_data.channel_name_.c_str());
+
+        cass_statement_bind_string_by_name(statement.get(),
+                "type", channel_data.type_.c_str());
+
+
+
+
+        cass_statement_bind_string_by_name(statement.get(),
+                "encoding", channel_data.encoding_.c_str());
+
+        cass_statement_bind_string_by_name(statement.get(),
+                "compression", channel_data.compression_.c_str());
+
+        cass_statement_bind_bytes_by_name(statement.get(),
+                "data",
+                reinterpret_cast<uint8_t*>(channel_data.buffer_.get()),
+                channel_data.buffer_n_bytes_);
+
+
+//                const std::vector<uint32_t> shape_;
+//
+//                const size_t buffer_n_bytes_;
+//                const std::unique_ptr<char> buffer_;
+
+
+
+    }
 }
