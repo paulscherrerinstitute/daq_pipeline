@@ -9,7 +9,8 @@ namespace scylla {
 
     static const std::string INSERT_STATEMENT(
         "INSERT INTO bsread_data.channel_data "
-        "(channel_name, pulse_id_mod, pulse_id, data, type, shape, encoding, compression) "
+        "(channel_name, pulse_id_mod, pulse_id, "
+        "data, type, shape, encoding, compression) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 
     template<class T> using cass_ptr = std::unique_ptr<T, void (*)(T *)>;

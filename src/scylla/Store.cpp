@@ -26,7 +26,8 @@ scylla::Store::Store(const std::string node_addresses)
     if (connection_status != CASS_OK) {
 
 // TODO: In case this happens often, extract the error message with cass_future_error_message.
-        throw runtime_error("Cannot connect to cluster. Please check network and provided hosts.");
+        throw runtime_error("Cannot connect to cluster. "
+                            "Please check network and provided hosts.");
     }
 
     cass_ptr<CassFuture> prepared_future = {
@@ -58,18 +59,18 @@ void scylla::Store::save_data(const std::vector<bs_daq::ChannelData>& data)
                 "channel_name", channel_data.channel_name_.c_str());
 
         cass_statement_bind_int64_by_name(statement.get(),
-                                          "pulse_id_mod", channel_data.pulse_id_mod_);
+                "pulse_id_mod", channel_data.pulse_id_mod_);
 
         cass_statement_bind_int64_by_name(statement.get(),
                 "pulse_id", channel_data.pulse_id_);
 
         cass_statement_bind_bytes_by_name(statement.get(),
-                                          "data",
-                                          reinterpret_cast<uint8_t*>(channel_data.buffer_.get()),
-                                          channel_data.buffer_n_bytes_);
+                 "data",
+                 reinterpret_cast<uint8_t*>(channel_data.buffer_.get()),
+                 channel_data.buffer_n_bytes_);
 
         cass_statement_bind_string_by_name(statement.get(),
-                                           "type", channel_data.type_.c_str());
+                "type", channel_data.type_.c_str());
 
 // TODO: Construct the actual shape.
         cass_statement_bind_collection_by_name(statement.get(),
