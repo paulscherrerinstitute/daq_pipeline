@@ -21,7 +21,7 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
     int more;
     size_t more_size = sizeof(more);
 
-    m_sock.recv(&msg);
+    m_sock.recv(msg);
     m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
     if (!more)
@@ -34,7 +34,7 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
     if (main_header.dh_compression != "none")
         throw runtime_error("Data header compression not supported.");
 
-    m_sock.recv(&msg);
+    m_sock.recv(msg);
     m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
     if (main_header.hash != channels_data_hash_) {
@@ -48,21 +48,21 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
 
-        data.pulse_id_ =  main_header.pulse_id;
+        data->pulse_id_ =  main_header.pulse_id;
 
-        data.recv_n_bytes_ = m_sock.recv(data.buffer_.get(),
-                                         data.buffer_n_bytes_);
+        data->recv_n_bytes_ = m_sock.recv(data->buffer_.get(),
+                                          data->buffer_n_bytes_);
         m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
-        if (data.recv_n_bytes > data.buffer_n_bytes_)
-            throw runtime_error("Received more bytes than expected.")
+        if (data->recv_n_bytes_ > data->buffer_n_bytes_)
+            throw runtime_error("Received more bytes than expected.");
 
         if (!more)
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
 
         // We omit the channel timestamp because we do not use it.
-        m_sock.recv(nullptr, 0);
+        m_sock.recv(zmq::mutable_buffer());
         m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
     }
 
@@ -73,7 +73,8 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
     return channels_data_;
 }
 
-bsread::main_header bsread::Receiver::get_main_header(void* data, size_t data_len)
+bsread::main_header bsread::Receiver::get_main_header(
+        void* data, size_t data_len)
 {
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
@@ -87,7 +88,9 @@ bsread::main_header bsread::Receiver::get_main_header(void* data, size_t data_le
             root["dh_compression"].asString()};
 }
 
-bs_daq::MessageData bsread::Receiver::get_data_header(void* data, size_t data_len) {
+bs_daq::MessageData bsread::Receiver::get_data_header(
+        void* data, size_t data_len)
+{
 
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
@@ -109,6 +112,9 @@ bs_daq::MessageData bsread::Receiver::get_data_header(void* data, size_t data_le
         auto type = channel.get("type", "float64").asString();
         size_t buffer_n_bytes = n_data_points * bs_type_n_bytes.at(type);
 
+// TODO: Implement pulse_id_mod calculation.
+        int64_t pulse_id_mod = 0;
+
         message_data.push_back(
                 make_unique<bs_daq::ChannelData>(
                     channel["name"].asString(),
@@ -116,7 +122,8 @@ bs_daq::MessageData bsread::Receiver::get_data_header(void* data, size_t data_le
                     shape,
                     channel.get("encoding", "little").asString(),
                     channel.get("compression", "none").asString(),
-                    buffer_n_bytes)
+                    buffer_n_bytes,
+                    pulse_id_mod)
         );
     }
 
