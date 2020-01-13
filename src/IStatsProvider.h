@@ -4,12 +4,12 @@
 #include <cstdint>
 #include <unordered_map>
 
-typedef std::unordered_map<std::string, float> StatsMap;
-
 namespace bs_daq {
 
+    typedef std::unordered_map<std::string, float> StatsMap;
+
     class IStatsProvider {
-        virtual ~IStatsProvider() = 0;
+        virtual ~IStatsProvider() = default;
         virtual void add_stats(uint64_t pulse_id, const StatsMap& stats) = 0;
     };
 
