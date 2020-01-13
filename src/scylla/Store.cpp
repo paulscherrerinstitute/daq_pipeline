@@ -2,7 +2,7 @@
 
 using namespace std;
 
-scylla::Store::Store(const std::string node_addresses)
+scylla::Store::Store(const std::string& node_addresses)
 {
     session_ = {
             cass_session_new(),

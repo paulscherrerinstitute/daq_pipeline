@@ -25,9 +25,7 @@ namespace scylla {
         void free_class_member_cass_objects();
 
     public:
-        Store(const std::string node_addresses);
-        ~Store();
-
+        Store(const std::string& node_addresses);
         void save_data(const std::vector<bs_daq::ChannelData>& data);
     };
 }
