@@ -1,8 +1,8 @@
-#include "Store.h"
+#include "ScyllaStore.h"
 
 using namespace std;
 
-scylla::Store::Store(const std::string& node_addresses)
+scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses)
 {
     session_ = {
             cass_session_new(),
@@ -47,7 +47,7 @@ scylla::Store::Store(const std::string& node_addresses)
     };
 }
 
-void scylla::Store::save_data(const std::vector<bs_daq::ChannelData>& data)
+void scylla::ScyllaStore::save_data(const std::vector<bs_daq::ChannelData>& data)
 {
     for (auto& channel_data : data){
         cass_ptr<CassStatement> statement = {

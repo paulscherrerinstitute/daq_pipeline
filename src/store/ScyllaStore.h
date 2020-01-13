@@ -1,5 +1,5 @@
-#ifndef DAQ_PIPELINE_STORE_H
-#define DAQ_PIPELINE_STORE_H
+#ifndef DAQ_PIPELINE_SCYLLASTORE_H
+#define DAQ_PIPELINE_SCYLLASTORE_H
 
 
 #include <cassandra.h>
@@ -15,7 +15,7 @@ namespace scylla {
 
     template<class T> using cass_ptr = std::unique_ptr<T, void (*)(T *)>;
 
-    class Store : public bs_daq::IDataStore {
+    class ScyllaStore : public bs_daq::IDataStore {
 
     protected:
         cass_ptr<CassCluster> cluster_ = {NULL, NULL};
@@ -23,9 +23,9 @@ namespace scylla {
         cass_ptr<const CassPrepared> prepared_insert_ = {NULL, NULL};
 
     public:
-        Store(const std::string& node_addresses);
+        ScyllaStore(const std::string& node_addresses);
         void save_data(const std::vector<bs_daq::ChannelData>& data);
     };
 }
 
-#endif //DAQ_PIPELINE_STORE_H
+#endif //DAQ_PIPELINE_SCYLLASTORE_H
