@@ -22,8 +22,6 @@ namespace scylla {
         cass_ptr<CassSession> session_ = {NULL, NULL};
         cass_ptr<const CassPrepared> prepared_insert_ = {NULL, NULL};
 
-        void free_class_member_cass_objects();
-
     public:
         Store(const std::string& node_addresses);
         void save_data(const std::vector<bs_daq::ChannelData>& data);
