@@ -2,14 +2,14 @@
 #define DAQ_PIPELINE_DATARECEIVER_H
 
 #include <vector>
-#include "ChannelData.h"
+#include "Data.h"
 
 namespace bs_daq {
 
     class IDataReceiver {
     public:
         virtual ~IDataReceiver() = default;
-        virtual const MessageData& get_data() = 0;
+        virtual StreamMessage get_data() = 0;
     };
 
 }

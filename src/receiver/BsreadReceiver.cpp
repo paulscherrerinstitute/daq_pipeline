@@ -15,7 +15,7 @@ bsread::BsreadReceiver::BsreadReceiver(string address, int rcvhwm, int sock_type
     sock_.connect(address.c_str());
 }
 
-const bs_daq::MessageData& bsread::BsreadReceiver::get_data()
+std::pair<int64_t, const bs_daq::MessageData&> bsread::BsreadReceiver::get_data()
 {
     zmq::message_t msg;
     int more;
@@ -70,7 +70,7 @@ const bs_daq::MessageData& bsread::BsreadReceiver::get_data()
         throw runtime_error("Invalid message format. The multipart message"
                             " has too many parts. Check sender.");
 
-    return channels_data_;
+    return {main_header.pulse_id, channels_data_};
 }
 
 bsread::main_header bsread::BsreadReceiver::get_main_header(

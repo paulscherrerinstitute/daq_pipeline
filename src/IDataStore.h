@@ -1,7 +1,7 @@
 #ifndef DAQ_PIPELINE_IDATASTORE_H
 #define DAQ_PIPELINE_IDATASTORE_H
 
-#include "ChannelData.h"
+#include "Data.h"
 #include <vector>
 
 namespace bs_daq {

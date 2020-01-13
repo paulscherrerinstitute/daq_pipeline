@@ -1,5 +1,5 @@
-#ifndef DAQ_PIPELINE_CHANNELDATA_H
-#define DAQ_PIPELINE_CHANNELDATA_H
+#ifndef DAQ_PIPELINE_DATA_H
+#define DAQ_PIPELINE_DATA_H
 
 #include <string>
 #include <vector>
@@ -42,6 +42,14 @@ namespace bs_daq {
     };
 
     typedef std::vector<std::unique_ptr<ChannelData>> MessageData;
+
+    struct StreamMessage {
+        int64_t pulse_id_;
+        const MessageData& message_data_;
+    };
+
+
+
 }
 
-#endif //DAQ_PIPELINE_CHANNELDATA_H
+#endif //DAQ_PIPELINE_DATA_H
