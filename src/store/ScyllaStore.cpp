@@ -47,7 +47,7 @@ scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses)
     };
 }
 
-void scylla::ScyllaStore::save_data(const std::vector<bs_daq::ChannelData>& data)
+void scylla::ScyllaStore::save_data(const bs_daq::MessageData& data)
 {
     for (auto& channel_data : data){
         cass_ptr<CassStatement> statement = {
@@ -56,30 +56,30 @@ void scylla::ScyllaStore::save_data(const std::vector<bs_daq::ChannelData>& data
         };
 
         cass_statement_bind_string_by_name(statement.get(),
-                "channel_name", channel_data.channel_name_.c_str());
+                "channel_name", channel_data->channel_name_.c_str());
 
         cass_statement_bind_int64_by_name(statement.get(),
-                "pulse_id_mod", channel_data.pulse_id_mod_);
+                "pulse_id_mod", channel_data->pulse_id_mod_);
 
         cass_statement_bind_int64_by_name(statement.get(),
-                "pulse_id", channel_data.pulse_id_);
+                "pulse_id", channel_data->pulse_id_);
 
         cass_statement_bind_bytes_by_name(statement.get(),
                  "data",
-                 reinterpret_cast<uint8_t*>(channel_data.buffer_.get()),
-                 channel_data.buffer_n_bytes_);
+                 reinterpret_cast<uint8_t*>(channel_data->buffer_.get()),
+                 channel_data->buffer_n_bytes_);
 
         cass_statement_bind_string_by_name(statement.get(),
-                "type", channel_data.type_.c_str());
+                "type", channel_data->type_.c_str());
 
 // TODO: Construct the actual shape.
         cass_statement_bind_collection_by_name(statement.get(),
                 "shape", NULL);
 
         cass_statement_bind_string_by_name(statement.get(),
-                "encoding", channel_data.encoding_.c_str());
+                "encoding", channel_data->encoding_.c_str());
 
         cass_statement_bind_string_by_name(statement.get(),
-                "compression", channel_data.compression_.c_str());
+                "compression", channel_data->compression_.c_str());
     }
 }
