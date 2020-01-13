@@ -6,8 +6,6 @@
 
 namespace bs_daq {
 
-    typedef std::vector<std::unique_ptr<ChannelData>> MessageData;
-
     class IDataReceiver {
     public:
         virtual ~IDataReceiver() = default;

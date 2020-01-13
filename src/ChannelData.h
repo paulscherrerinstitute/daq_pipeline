@@ -41,6 +41,7 @@ namespace bs_daq {
                   pulse_id_mod_(pulse_id_mod) {}
     };
 
+    typedef std::vector<std::unique_ptr<ChannelData>> MessageData;
 }
 
 #endif //DAQ_PIPELINE_CHANNELDATA_H
