@@ -8,7 +8,7 @@ namespace bs_daq {
 
     class IDataStore {
     public:
-        virtual ~IDataStore() = 0;
+        virtual ~IDataStore() = default;
         virtual void save_data(const std::vector<ChannelData>& data) = 0;
     };
 

@@ -10,7 +10,7 @@ namespace bs_daq {
 
     class IDataReceiver {
     public:
-        virtual ~IDataReceiver() = 0;
+        virtual ~IDataReceiver() = default;
         virtual const MessageData& get_data();
     };
 
