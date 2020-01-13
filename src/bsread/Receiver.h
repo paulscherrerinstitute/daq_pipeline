@@ -7,8 +7,8 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include <json.h>
 
+#include "../external/json.h"
 #include "../IDataReceiver.h"
 
 namespace bsread {
@@ -53,7 +53,6 @@ namespace bsread {
 
     public:
         Receiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
-        virtual ~Receiver() = default;
 
         const bs_daq::MessageData& get_data();
 
