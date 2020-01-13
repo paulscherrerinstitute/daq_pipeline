@@ -43,7 +43,7 @@ namespace bsread {
             {"uint64",  8},
     };
 
-    class Receiver : public bs_daq::IDataReceiver {
+    class BsreadReceiver : public bs_daq::IDataReceiver {
 
         zmq::context_t ctx_;
         zmq::socket_t sock_;
@@ -52,7 +52,7 @@ namespace bsread {
         Json::Reader json_reader_;
 
     public:
-        Receiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
+        BsreadReceiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
         const bs_daq::MessageData& get_data();
 
     private:

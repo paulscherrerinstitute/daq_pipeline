@@ -1,4 +1,4 @@
-#include "Receiver.h"
+#include "BsreadReceiver.h"
 #include "json.h"
 
 #include <iostream>
@@ -6,7 +6,7 @@
 using namespace std;
 
 
-bsread::Receiver::Receiver(string address, int rcvhwm, int sock_type) :
+bsread::BsreadReceiver::BsreadReceiver(string address, int rcvhwm, int sock_type) :
         ctx_(1),
         sock_(ctx_, sock_type),
         source_address_(address)
@@ -15,7 +15,7 @@ bsread::Receiver::Receiver(string address, int rcvhwm, int sock_type) :
     sock_.connect(address.c_str());
 }
 
-const bs_daq::MessageData& bsread::Receiver::get_data()
+const bs_daq::MessageData& bsread::BsreadReceiver::get_data()
 {
     zmq::message_t msg;
     int more;
@@ -73,7 +73,7 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
     return channels_data_;
 }
 
-bsread::main_header bsread::Receiver::get_main_header(
+bsread::main_header bsread::BsreadReceiver::get_main_header(
         void* data, size_t data_len)
 {
     Json::Value root;
@@ -88,7 +88,7 @@ bsread::main_header bsread::Receiver::get_main_header(
             root["dh_compression"].asString()};
 }
 
-bs_daq::MessageData bsread::Receiver::get_data_header(
+bs_daq::MessageData bsread::BsreadReceiver::get_data_header(
         void* data, size_t data_len)
 {
 
