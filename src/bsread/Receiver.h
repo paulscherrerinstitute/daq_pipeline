@@ -53,7 +53,6 @@ namespace bsread {
 
     public:
         Receiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
-
         const bs_daq::MessageData& get_data();
 
     private:
