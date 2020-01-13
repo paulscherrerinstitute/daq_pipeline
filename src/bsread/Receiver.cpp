@@ -7,12 +7,12 @@ using namespace std;
 
 
 bsread::Receiver::Receiver(string address, int rcvhwm, int sock_type) :
-        m_ctx(1),
-        m_sock(m_ctx, sock_type),
-        m_address(address)
+        ctx_(1),
+        sock_(ctx_, sock_type),
+        source_address_(address)
 {
-    m_sock.setsockopt(ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm));
-    m_sock.connect(address.c_str());
+    sock_.setsockopt(ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm));
+    sock_.connect(address.c_str());
 }
 
 const bs_daq::MessageData& bsread::Receiver::get_data()
@@ -21,8 +21,8 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
     int more;
     size_t more_size = sizeof(more);
 
-    m_sock.recv(msg);
-    m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+    sock_.recv(msg);
+    sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
     if (!more)
         throw runtime_error("Data header expected after main header.");
@@ -34,8 +34,8 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
     if (main_header.dh_compression != "none")
         throw runtime_error("Data header compression not supported.");
 
-    m_sock.recv(msg);
-    m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+    sock_.recv(msg);
+    sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
     if (main_header.hash != channels_data_hash_) {
         channels_data_ = get_data_header(msg.data(), msg.size());
@@ -50,9 +50,9 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
 
         data->pulse_id_ =  main_header.pulse_id;
 
-        data->recv_n_bytes_ = m_sock.recv(data->buffer_.get(),
-                                          data->buffer_n_bytes_);
-        m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+        data->recv_n_bytes_ = sock_.recv(data->buffer_.get(),
+                                         data->buffer_n_bytes_);
+        sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
         if (data->recv_n_bytes_ > data->buffer_n_bytes_)
             throw runtime_error("Received more bytes than expected.");
@@ -62,8 +62,8 @@ const bs_daq::MessageData& bsread::Receiver::get_data()
                                 " message terminated prematurely.");
 
         // We omit the channel timestamp because we do not use it.
-        m_sock.recv(zmq::mutable_buffer());
-        m_sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+        sock_.recv(zmq::mutable_buffer());
+        sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
     }
 
     if (more)
@@ -78,7 +78,7 @@ bsread::main_header bsread::Receiver::get_main_header(
 {
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
-    json_reader.parse(json_string, root);
+    json_reader_.parse(json_string, root);
 
     return {root["htype"].asString(),
             root["pulse_id"].asUInt64(),
@@ -94,7 +94,7 @@ bs_daq::MessageData bsread::Receiver::get_data_header(
 
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
-    json_reader.parse(json_string, root);
+    json_reader_.parse(json_string, root);
 
     bs_daq::MessageData message_data(root["channels"].size());
 

@@ -45,11 +45,11 @@ namespace bsread {
 
     class Receiver : public bs_daq::IDataReceiver {
 
-        zmq::context_t m_ctx;
-        zmq::socket_t m_sock;
-        std::string m_address;
+        zmq::context_t ctx_;
+        zmq::socket_t sock_;
+        std::string source_address_;
 
-        Json::Reader json_reader;
+        Json::Reader json_reader_;
 
     public:
         Receiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
