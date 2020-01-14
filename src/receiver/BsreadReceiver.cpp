@@ -31,7 +31,7 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
 
     if (main_header.htype != "bsr_m-1.1")
         throw runtime_error("Wrong protocol for this receiver.");
-    if (main_header.dh_compression != "none")
+    if (main_header.dh_compression != "")
         throw runtime_error("Data header compression not supported.");
 
     sock_.recv(msg);
@@ -95,7 +95,7 @@ void bsread::BsreadReceiver::build_data_header(
     auto json_string = string(static_cast<char*>(data), data_len);
     json_reader_.parse(json_string, root);
 
-    channels_data_ = make_shared<bs_daq::Channels>(root["channels"].size());
+    channels_data_ = make_shared<bs_daq::Channels>();
 
     for(Json::Value& channel : root["channels"]) {
 
@@ -110,6 +110,11 @@ void bsread::BsreadReceiver::build_data_header(
 
         auto type = channel.get("type", "float64").asString();
         size_t buffer_n_bytes = n_data_points * bs_type_n_bytes.at(type);
+
+// TODO: This is stupid. Strings should also be able to tell the needed buffer size in advance.
+        if (type == "string") {
+            buffer_n_bytes *= 1024;
+        }
 
 // TODO: Implement pulse_id_mod calculation.
         int64_t pulse_id_mod = 0;
