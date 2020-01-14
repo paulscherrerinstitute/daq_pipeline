@@ -47,9 +47,9 @@ scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses)
     };
 }
 
-void scylla::ScyllaStore::save_data(const bs_daq::MessageData& data)
+void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 {
-    for (auto& channel_data : data){
+    for (auto& channel_data : *message_data.channels_){
         cass_ptr<CassStatement> statement = {
                 cass_prepared_bind(prepared_insert_.get()),
                 [](CassStatement *p){ cass_statement_free(p); }
