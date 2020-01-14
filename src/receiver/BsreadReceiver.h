@@ -22,7 +22,7 @@ namespace bsread {
 
     struct main_header {
         std::string htype;
-        uint64_t pulse_id;
+        int64_t pulse_id;
         timestamp global_timestamp;
         std::string hash;
         std::string dh_compression;
@@ -53,13 +53,13 @@ namespace bsread {
 
     public:
         BsreadReceiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
-        StreamMessage get_data();
+        bs_daq::MessageData get_data();
 
     private:
         main_header get_main_header(void* data, size_t data_len);
-        bs_daq::MessageData get_data_header(void* data, size_t data_len);
+        void build_data_header(void* data, size_t data_len);
 
-        bs_daq::MessageData channels_data_;
+        std::shared_ptr<bs_daq::Channels> channels_data_;
         std::string channels_data_hash_;
     };
 }

@@ -41,11 +41,11 @@ namespace bs_daq {
                   pulse_id_mod_(pulse_id_mod) {}
     };
 
-    typedef std::vector<std::unique_ptr<ChannelData>> MessageData;
+    typedef std::vector<std::unique_ptr<ChannelData>> Channels;
 
-    struct StreamMessage {
+    struct MessageData {
         int64_t pulse_id_;
-        const MessageData& message_data_;
+        std::shared_ptr<Channels> channels_;
     };
 
 

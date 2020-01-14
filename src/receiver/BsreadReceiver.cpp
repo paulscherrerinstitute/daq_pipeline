@@ -15,7 +15,7 @@ bsread::BsreadReceiver::BsreadReceiver(string address, int rcvhwm, int sock_type
     sock_.connect(address.c_str());
 }
 
-std::pair<int64_t, const bs_daq::MessageData&> bsread::BsreadReceiver::get_data()
+bs_daq::MessageData bsread::BsreadReceiver::get_data()
 {
     zmq::message_t msg;
     int more;
@@ -38,11 +38,11 @@ std::pair<int64_t, const bs_daq::MessageData&> bsread::BsreadReceiver::get_data(
     sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
     if (main_header.hash != channels_data_hash_) {
-        channels_data_ = get_data_header(msg.data(), msg.size());
+        build_data_header(msg.data(), msg.size());
         channels_data_hash_ = main_header.hash;
     }
 
-    for (auto& data : channels_data_) {
+    for (auto& data : *channels_data_) {
 
         if (!more)
             throw runtime_error("Invalid message format. The multipart"
@@ -81,22 +81,21 @@ bsread::main_header bsread::BsreadReceiver::get_main_header(
     json_reader_.parse(json_string, root);
 
     return {root["htype"].asString(),
-            root["pulse_id"].asUInt64(),
+            root["pulse_id"].asInt64(),
             timestamp(root["global_timestamp"]["sec"].asUInt64(),
                       root["global_timestamp"]["ns"].asUInt64()),
             root["hash"].asString(),
             root["dh_compression"].asString()};
 }
 
-bs_daq::MessageData bsread::BsreadReceiver::get_data_header(
+void bsread::BsreadReceiver::build_data_header(
         void* data, size_t data_len)
 {
-
     Json::Value root;
     auto json_string = string(static_cast<char*>(data), data_len);
     json_reader_.parse(json_string, root);
 
-    bs_daq::MessageData message_data(root["channels"].size());
+    channels_data_ = make_shared<bs_daq::Channels>(root["channels"].size());
 
     for(Json::Value& channel : root["channels"]) {
 
@@ -115,7 +114,7 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data_header(
 // TODO: Implement pulse_id_mod calculation.
         int64_t pulse_id_mod = 0;
 
-        message_data.push_back(
+        channels_data_->push_back(
                 make_unique<bs_daq::ChannelData>(
                     channel["name"].asString(),
                     type,
@@ -126,6 +125,4 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data_header(
                     pulse_id_mod)
         );
     }
-
-    return message_data;
 }

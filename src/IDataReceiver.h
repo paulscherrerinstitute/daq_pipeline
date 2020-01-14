@@ -9,7 +9,7 @@ namespace bs_daq {
     class IDataReceiver {
     public:
         virtual ~IDataReceiver() = default;
-        virtual StreamMessage get_data() = 0;
+        virtual MessageData get_data() = 0;
     };
 
 }
