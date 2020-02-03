@@ -3,7 +3,8 @@
 
 using namespace std;
 
-scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses)
+scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses) :
+        n_pending_inserts_(0)
 {
     session_ = {
             cass_session_new(),
@@ -93,6 +94,8 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
         cass_statement_bind_string_by_name(statement.get(),
                 "compression", channel_data->compression_.c_str());
 
+        n_pending_inserts_++;
+
         cass_ptr<CassFuture> insert_future = {
                 cass_session_execute(session_.get(), statement.get()),
                 [](CassFuture *p){ cass_future_free(p); }
@@ -102,7 +105,8 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
                 insert_future.get(),
                 [](CassFuture* future, void* data) {
                     std::cout << "Success" << std::endl;
+                    static_cast<scylla::ScyllaStore*>(data)->n_pending_inserts_--;
                     },
-                NULL);
+                this);
     }
 }

@@ -22,6 +22,8 @@ namespace scylla {
         cass_ptr<CassSession> session_ = {NULL, NULL};
         cass_ptr<const CassPrepared> prepared_insert_ = {NULL, NULL};
 
+        std::atomic<int> n_pending_inserts_;
+
     public:
         ScyllaStore(const std::string& node_addresses);
         void save_data(const bs_daq::MessageData message_data);
