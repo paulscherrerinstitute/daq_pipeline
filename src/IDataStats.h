@@ -11,7 +11,7 @@ namespace bs_daq {
     class IDataStats {
     public:
         virtual ~IDataStats() = default;
-        virtual void add_stats(uint64_t pulse_id, const StatsMap& stats) = 0;
+        virtual void add_stats(uint64_t pulse_id, const StatsMap& pulse_stats) = 0;
     };
 
 }
