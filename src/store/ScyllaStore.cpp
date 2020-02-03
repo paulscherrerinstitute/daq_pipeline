@@ -74,9 +74,18 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
         cass_statement_bind_string_by_name(statement.get(),
                 "type", channel_data->type_.c_str());
 
-// TODO: Construct the actual shape.
+        cass_ptr<CassCollection> cass_shape = {
+                cass_collection_new(CASS_COLLECTION_TYPE_LIST,
+                                    channel_data->shape_.size()),
+                [](CassCollection *p){ cass_collection_free(p); }
+        };
+
+        for (auto shape_element : channel_data->shape_) {
+            cass_collection_append_uint32(cass_shape.get(), shape_element);
+        }
+
         cass_statement_bind_collection_by_name(statement.get(),
-                "shape", NULL);
+                "shape", cass_shape.get());
 
         cass_statement_bind_string_by_name(statement.get(),
                 "encoding", channel_data->encoding_.c_str());
