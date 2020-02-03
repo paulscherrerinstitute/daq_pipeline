@@ -1,3 +1,4 @@
+#include <iostream>
 #include "ScyllaStore.h"
 
 using namespace std;
@@ -16,6 +17,7 @@ scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses)
 
     cass_cluster_set_contact_points(cluster_.get(), node_addresses.c_str());
     cass_cluster_set_token_aware_routing(cluster_.get(), cass_true);
+    cass_cluster_set_num_threads_io(cluster_.get(), 1);
 
     cass_ptr<CassFuture> connect_future({
         cass_session_connect(session_.get(), cluster_.get()),
@@ -81,5 +83,17 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 
         cass_statement_bind_string_by_name(statement.get(),
                 "compression", channel_data->compression_.c_str());
+
+        cass_ptr<CassFuture> insert_future = {
+                cass_session_execute(session_.get(), statement.get()),
+                [](CassFuture *p){ cass_future_free(p); }
+        };
+
+        cass_future_set_callback(
+                insert_future.get(),
+                [](CassFuture* future, void* data) {
+                    std::cout << "Success" << std::endl;
+                    },
+                NULL);
     }
 }
