@@ -26,7 +26,7 @@ int main() {
 
         auto start_save_data = hres_clock::now();
         store.save_data(message_data);
-        auto time_save_data = hres_clock::now() - start_save_data;
+        f_sec time_save_data = hres_clock::now() - start_save_data;
 
         auto start_add_stats = hres_clock::now();
         stats.add_stats(message_data.pulse_id_, {
