@@ -104,9 +104,14 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
         cass_future_set_callback(
                 insert_future.get(),
                 [](CassFuture* future, void* data) {
-                    std::cout << "Success" << std::endl;
+                    // TODO: Read future result and log eventual error.
                     static_cast<scylla::ScyllaStore*>(data)->n_pending_inserts_--;
                     },
                 this);
     }
+}
+
+float scylla::ScyllaStore::get_n_pending_inserts()
+{
+    return static_cast<float>(n_pending_inserts_);
 }
