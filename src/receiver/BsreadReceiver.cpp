@@ -42,6 +42,8 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
         channels_data_hash_ = main_header.hash;
     }
 
+    size_t n_data_bytes = 0;
+
     for (auto& data : *channels_data_) {
 
         if (!more)
@@ -64,13 +66,15 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
         // We omit the channel timestamp because we do not use it.
         sock_.recv(zmq::mutable_buffer());
         sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+
+        n_data_bytes += data->recv_n_bytes_;
     }
 
     if (more)
         throw runtime_error("Invalid message format. The multipart message"
                             " has too many parts. Check sender.");
 
-    return {main_header.pulse_id, channels_data_};
+    return {main_header.pulse_id, n_data_bytes, channels_data_};
 }
 
 bsread::main_header bsread::BsreadReceiver::get_main_header(

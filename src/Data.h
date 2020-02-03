@@ -45,6 +45,7 @@ namespace bs_daq {
 
     struct MessageData {
         int64_t pulse_id_;
+        size_t n_data_bytes_;
         std::shared_ptr<Channels> channels_;
     };
 
