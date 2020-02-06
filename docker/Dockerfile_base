@@ -1,0 +1,13 @@
+FROM centos:7
+
+RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm centos-release-scl
+RUN yum -y install git cmake3 cppzmq-devel libuv openssl devtoolset-7
+
+WORKDIR /install
+
+RUN curl https://downloads.datastax.com/cpp-driver/centos/7/dse/v1.10.1/dse-cpp-driver-1.10.1-1.el7.x86_64.rpm > dse-cpp-driver-1.10.1-1.el7.x86_64.rpm;
+RUN rpm -Uvh dse-cpp-driver-1.10.1-1.el7.x86_64.rpm;
+
+RUN curl https://downloads.datastax.com/cpp-driver/centos/7/dse/v1.10.1/dse-cpp-driver-devel-1.10.1-1.el7.x86_64.rpm > dse-cpp-driver-devel-1.10.1-1.el7.x86_64.rpm;
+RUN rpm -Uvh dse-cpp-driver-devel-1.10.1-1.el7.x86_64.rpm;
+RUN ln -s /usr/include/dse/cassandra.h /usr/include/cassandra.h;
