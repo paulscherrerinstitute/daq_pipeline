@@ -3,6 +3,7 @@
 
 
 #include <cassandra.h>
+#include <atomic>
 #include "../IDataStore.h"
 
 namespace scylla {
@@ -32,3 +33,4 @@ namespace scylla {
 }
 
 #endif //DAQ_PIPELINE_SCYLLASTORE_H
+
