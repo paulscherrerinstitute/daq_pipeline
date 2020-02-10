@@ -12,5 +12,10 @@ set(SOURCES ${SOURCES})
 add_library(${BINARY}_lib STATIC ${SOURCES})
 
 add_executable(${BINARY} ${SOURCES})
-target_link_libraries(${BINARY} zmq cassandra)
+target_link_libraries(${BINARY} zmq)
 
+IF (APPLE)
+    target_link_libraries(${BINARY} cassandra)
+ELSE (UNIX)
+    target_link_libraries(${BINARY} dse)
+ENDIF (APPLE)
