@@ -5,6 +5,6 @@ set(CMAKE_CXX_STANDARD 14)
 set (DAQ_PIPELINE_VERSION "1.0.0")
 
 add_subdirectory("src")
-add_subdirectory("test")
+#add_subdirectory("test")
 
 enable_testing()
