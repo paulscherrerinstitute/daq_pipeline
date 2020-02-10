@@ -1,6 +1,7 @@
 #ifndef DAQ_PIPELINE_BASESTATS_H
 #define DAQ_PIPELINE_BASESTATS_H
 #include "../IDataStats.h"
+#include <memory>
 
 namespace bs_daq {
     class BaseStats : public bs_daq::IDataStats {
