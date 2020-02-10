@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../src/bsread/BsreadReceiver.cpp"
+#include "../src/receiver/BsreadReceiver.cpp"
 
 TEST(blaTest, test1) {
     bsread::BsreadReceiver receiver("tcp://localhost:10000");
