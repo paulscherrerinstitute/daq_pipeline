@@ -8,3 +8,5 @@ SHELL ["/usr/bin/scl", "enable", "devtoolset-7"]
 WORKDIR /daq_pipeline/build
 
 RUN cmake3 ..; make;
+
+CMD ./daq_pipeline
