@@ -1,0 +1,8 @@
+FROM continuumio/miniconda:4.5.12
+
+WORKDIR /source_generator
+
+COPY sources.json sources.json
+COPY start_stream.py .
+
+RUN conda install -c paulscherrerinstitute bsread
