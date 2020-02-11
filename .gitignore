@@ -141,3 +141,4 @@ gen
 *.out
 *.app
 
+operational_tools/sources
