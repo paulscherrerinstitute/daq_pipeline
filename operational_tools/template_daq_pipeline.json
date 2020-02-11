@@ -1,0 +1,21 @@
+{
+	"kind": "Pod",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "{{DEVICE_NAME}}",
+		"labels": {
+			"app": "daq_pipeline"
+		}
+	},
+	"spec": {
+		"containers": [
+			{
+				"name": "daq_pipeline",
+				"image": "paulscherrerinstitute/daq_pipeline",
+				"env": []
+			}
+		],
+        "restartPolicy": "Never",
+		"hostNetwork": true
+	}
+}
