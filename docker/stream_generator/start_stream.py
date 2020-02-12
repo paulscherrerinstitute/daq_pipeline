@@ -43,6 +43,8 @@ def main():
     source_file = args.source_file
     port = args.port
 
+    _logger.info("Starting generator for device %s on port %s." % (device_name, port))
+
     with open(source_file, 'r') as input_file:
         sources = json.load(input_file)
 
@@ -55,6 +57,10 @@ def main():
         sender = Sender(port=port)
 
         for channel in channels_metadata:
+            _logger.info("Adding channel %s with type %s and shape %s.." % (channel["name"],
+                                                                            channel["type"],
+                                                                            channel["shape"]))
+
             sender.add_channel({"name": channel["name"],
                                 "function": get_generator_function(channel["type"], channel["shape"]),
                                 "metadata": {"type": channel["type"],
