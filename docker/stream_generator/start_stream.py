@@ -61,10 +61,10 @@ def main():
                                                                             channel["type"],
                                                                             channel["shape"]))
 
-            sender.add_channel({"name": channel["name"],
-                                "function": get_generator_function(channel["type"], channel["shape"]),
-                                "metadata": {"type": channel["type"],
-                                             "shape": channel["shape"]}})
+            sender.add_channel(name=channel["name"],
+                               function=get_generator_function(channel["type"], channel["shape"]),
+                               metadata= {"type": channel["type"],
+                                          "shape": channel["shape"]})
 
         sender.generate_stream()
 
@@ -76,4 +76,5 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     main()
