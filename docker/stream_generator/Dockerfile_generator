@@ -1,4 +1,4 @@
-FROM continuumio/miniconda:4.5.12
+FROM continuumio/miniconda3
 
 WORKDIR /source_generator
 
