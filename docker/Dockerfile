@@ -9,4 +9,4 @@ WORKDIR /daq_pipeline/build
 
 RUN cmake3 ..; make;
 
-CMD ./daq_pipeline
+ENTRYPOINT ["./daq_pipeline"]

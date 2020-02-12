@@ -9,8 +9,10 @@ typedef std::chrono::duration<float> f_sec;
 
 int main() {
 
-    // TODO: This does not work in the container. Fix the Dockerfile.
-    signal(SIGTERM, [](int signum) { exit(signum); });
+    signal(SIGTERM, [](int signum) {
+        std::cout << "Interrupted by SIGTERM." << std::endl;
+        exit(signum);
+    });
 
     auto receiver = bsread::BsreadReceiver("tcp://127.0.0.1:10100");
     scylla::ScyllaStore store("127.0.0.1");
