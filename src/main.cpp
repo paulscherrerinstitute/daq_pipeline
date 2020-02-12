@@ -1,4 +1,5 @@
 #include <iostream>
+#include <csignal>
 #include "receiver/BsreadReceiver.h"
 #include "stats/ConsoleStats.h"
 #include "store/ScyllaStore.h"
@@ -7,6 +8,9 @@ typedef std::chrono::high_resolution_clock hres_clock;
 typedef std::chrono::duration<float> f_sec;
 
 int main() {
+
+    // TODO: This does not work in the container. Fix the Dockerfile.
+    signal(SIGTERM, [](int signum) { exit(signum); });
 
     auto receiver = bsread::BsreadReceiver("tcp://127.0.0.1:10100");
     scylla::ScyllaStore store("127.0.0.1");
@@ -24,6 +28,9 @@ int main() {
         auto start_iteration = hres_clock::now();
 
         auto message_data = receiver.get_data();
+        if (message_data.pulse_id_ == bs_daq::NO_DATA_MESSAGE.pulse_id_) {
+            continue;
+        }
         f_sec time_get_data = hres_clock::now() - start_iteration;
 
         auto start_save_data = hres_clock::now();
