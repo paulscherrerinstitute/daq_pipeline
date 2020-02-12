@@ -29,7 +29,7 @@ def main():
     parser.add_argument('--device_name', type=str, default=device_name,
                         help='Simulated device name')
 
-    source_file = os.getenv("SOURCE_FILE", "/sources.json")
+    source_file = os.getenv("SOURCE_FILE", "sources.json")
     parser.add_argument('--source_file', type=str, default=source_file,
                         help='Simulation sources file')
 
