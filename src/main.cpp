@@ -18,6 +18,8 @@ int main() {
     f_sec time_iteration = f_sec(0.003);
     f_sec time_add_stats = f_sec(0.003);
 
+    std::cout << "[INFO] Start writing loop..." << std::endl;
+
     while (true) {
         auto start_iteration = hres_clock::now();
 
