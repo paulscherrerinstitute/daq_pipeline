@@ -6,3 +6,5 @@ COPY sources.json sources.json
 COPY start_stream.py .
 
 RUN conda install -c paulscherrerinstitute bsread
+
+CMD python start_stream.py
