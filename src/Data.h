@@ -49,8 +49,8 @@ namespace bs_daq {
         std::shared_ptr<Channels> channels_;
     };
 
-
-
+    static const MessageData NO_DATA_MESSAGE =
+        {-1, 0, nullptr};
 }
 
 #endif //DAQ_PIPELINE_DATA_H

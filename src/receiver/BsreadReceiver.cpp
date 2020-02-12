@@ -11,7 +11,9 @@ bsread::BsreadReceiver::BsreadReceiver(string address, int rcvhwm, int sock_type
         sock_(ctx_, sock_type),
         source_address_(address)
 {
+    int timeout = 1000;
     sock_.setsockopt(ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm));
+    sock_.setsockopt(ZMQ_RCVTIMEO, &timeout, sizeof(timeout));
     sock_.connect(address.c_str());
 }
 
@@ -21,7 +23,9 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
     int more;
     size_t more_size = sizeof(more);
 
-    sock_.recv(msg);
+    if (!sock_.recv(msg)) {
+        return bs_daq::NO_DATA_MESSAGE;
+    }
     sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
     if (!more)
