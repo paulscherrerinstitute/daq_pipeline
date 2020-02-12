@@ -14,8 +14,20 @@ int main() {
         exit(signum);
     });
 
-    auto receiver = bsread::BsreadReceiver("tcp://127.0.0.1:10100");
-    scylla::ScyllaStore store("127.0.0.1");
+    auto scylla_hosts = std::getenv("SCYLLA_HOSTS");
+    if (!scylla_hosts) {
+        throw std::runtime_error("SCYLLA_HOSTS env variable not set.");
+    }
+
+    auto stream_host = std::getenv("STREAM_HOST");
+    if (!stream_host) {
+        throw std::runtime_error("STREAM_HOST env variable not set.");
+    }
+
+    std::cout << "Starting "
+
+    auto receiver = bsread::BsreadReceiver(stream_host);
+    scylla::ScyllaStore store(scylla_hosts);
     auto stats = debug::ConsoleStats();
 
     auto stats_map = bs_daq::StatsMap();
