@@ -4,7 +4,7 @@ import logging
 import os
 
 import numpy
-from bsread import Sender
+from bsread.sender import Sender
 
 _logger = logging.getLogger('start_store_pipeline')
 
@@ -25,7 +25,7 @@ def get_generator_function(type, shape):
 def main():
     parser = argparse.ArgumentParser()
 
-    device_name = os.getenv("DEVICE_NAME")
+    device_name = os.getenv("DEVICE_NAME", "test_device")
     parser.add_argument('--device_name', type=str, default=device_name,
                         help='Simulated device name')
 
@@ -33,7 +33,7 @@ def main():
     parser.add_argument('--source_file', type=str, default=source_file,
                         help='Simulation sources file')
 
-    port = os.getenv("PORT")
+    port = os.getenv("PORT", 9999)
     parser.add_argument('--port', type=int, default=port,
                         help='Simulation sources file')
 
@@ -41,7 +41,7 @@ def main():
 
     device_name = args.device_name
     source_file = args.source_file
-    port = args.read_time
+    port = args.port
 
     with open(source_file, 'r') as input_file:
         sources = json.load(input_file)
