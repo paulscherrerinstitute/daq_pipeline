@@ -8,7 +8,7 @@ START_STREAM_PORT = 10000
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--source_file', type=str, default="sources_all.json",
+parser.add_argument('--source_file', type=str, default="sources/sources_all.json",
                     help='File with the desired sources.')
 parser.add_argument('--scylla_hosts', type=str, default="",
                     help='Scylla hosts to access the data.')
