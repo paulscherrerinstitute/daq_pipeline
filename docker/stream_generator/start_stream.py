@@ -4,10 +4,14 @@ import logging
 import os
 
 import numpy
+from random import randint
+
 from bsread.sender import Sender
 
 _logger = logging.getLogger('start_store_pipeline')
 
+
+cache = {}
 
 def get_generator_function(type, shape):
     if type is None:
@@ -19,7 +23,16 @@ def get_generator_function(type, shape):
     if type == "bool":
         return lambda x: True
 
-    return lambda x: numpy.zeros(shape=shape, dtype=type)
+    cache_key = (tuple(shape), type)
+
+    global cache
+    if cache_key not in cache:
+        cache[cache_key] = numpy.zeros(shape=shape, dtype=type)
+
+        random_value = randint(0, 100)
+        cache[cache_key] += lambda x: random_value
+
+    return cache[cache_key]
 
 
 def main():
