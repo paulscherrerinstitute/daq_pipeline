@@ -2,7 +2,7 @@
 
 VERSION=0.0.1
 
-cp ../../operational_tools/sources_all.json sources.json
+cp ../../operational_tools/sources/sources_all.json sources.json
 
 docker login
 
