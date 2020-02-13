@@ -24,7 +24,8 @@ int main() {
         throw std::runtime_error("STREAM_HOST env variable not set.");
     }
 
-    std::cout << "Starting "
+    std::cout << "Starting daq_pipeline with scylla_hosts=" << scylla_hosts;
+    std::cout << " and stream_host=" << stream_host << std::endl;
 
     auto receiver = bsread::BsreadReceiver(stream_host);
     scylla::ScyllaStore store(scylla_hosts);
