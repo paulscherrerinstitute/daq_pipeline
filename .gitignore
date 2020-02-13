@@ -141,6 +141,6 @@ gen
 *.out
 *.app
 
-operational_tools/sources
+operational_tools/daq_pipelines
 operational_tools/generators
 docker/stream_generator/sources.json
