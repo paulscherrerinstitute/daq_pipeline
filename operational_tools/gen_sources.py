@@ -5,14 +5,15 @@ import shutil
 from copy import deepcopy
 
 START_STREAM_PORT = 10000
+DEFAULT_SCYLLA_HOSTS = "172.26.120.72, 172.26.120.73, 172.26.120.74"
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--source_file', type=str, default="sources/sources_all.json",
                     help='File with the desired sources.')
-parser.add_argument('--scylla_hosts', type=str, default="",
+parser.add_argument('--scylla_hosts', type=str, default=DEFAULT_SCYLLA_HOSTS,
                     help='Scylla hosts to access the data.')
-parser.add_argument('--generator_host', type=str, default="",
+parser.add_argument('--generator_host', type=str, default="172.26.120.71",
                     help='Host where the generator code will be running.')
 
 args = parser.parse_args()
