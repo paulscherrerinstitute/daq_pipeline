@@ -142,4 +142,5 @@ gen
 *.app
 
 operational_tools/sources
+operational_tools/generators
 docker/stream_generator/sources.json
