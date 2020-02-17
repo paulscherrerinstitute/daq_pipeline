@@ -4,13 +4,13 @@
 	"metadata": {
 		"name": "{{DEVICE_NAME}}",
 		"labels": {
-			"app": "daq_pipeline"
+			"app": "bsread-store"
 		}
 	},
 	"spec": {
 		"containers": [
 			{
-				"name": "daq_pipeline",
+				"name": "daq-pipeline",
 				"image": "paulscherrerinstitute/daq_pipeline",
 				"env": []
 			}

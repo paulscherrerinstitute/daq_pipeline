@@ -4,13 +4,13 @@
   "metadata": {
     "name": "{{DEVICE_NAME}}",
     "labels": {
-      "app": "daq_pipeline_generator"
+      "app": "bsread-generator"
     }
   },
   "spec": {
     "containers": [
       {
-        "name": "daq_pipeline_generator",
+        "name": "daq-pipeline-generator",
         "image": "paulscherrerinstitute/daq_pipeline_generator",
         "env": []
       }
