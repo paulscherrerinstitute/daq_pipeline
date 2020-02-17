@@ -27,10 +27,10 @@ def get_generator_function(type, shape):
 
     global cache
     if cache_key not in cache:
-        cache[cache_key] = numpy.zeros(shape=shape, dtype=type)
+        data = numpy.zeros(shape=shape, dtype=type)
+        data += randint(0, 100)
 
-        random_value = randint(0, 100)
-        cache[cache_key] += lambda x: random_value
+        cache[cache_key] = lambda x: data
 
     return cache[cache_key]
 
