@@ -5,7 +5,7 @@ import shutil
 from copy import deepcopy
 
 START_STREAM_PORT = 10000
-DEFAULT_SCYLLA_HOSTS = "172.26.120.72, 172.26.120.73, 172.26.120.74"
+DEFAULT_SCYLLA_HOSTS = "172.26.120.72,172.26.120.73,172.26.120.74"
 
 parser = argparse.ArgumentParser()
 
