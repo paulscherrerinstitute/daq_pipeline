@@ -36,6 +36,9 @@ with open("template_generator.json") as input_file:
 with open(args.source_file) as input_file:
     data = json.load(input_file)
 
+docker_command = 'docker run --net=host -e DEVICE_NAME="%s" -e PORT=%s paulscherrerinstitute/daq_pipeline_generator &'
+temp = []
+
 for index, device in enumerate(data.keys()):
     daq_pipeline_file = deepcopy(template_daq_pipeline)
     generators_file = deepcopy(template_generator)
@@ -56,8 +59,14 @@ for index, device in enumerate(data.keys()):
     generators_file["spec"]["containers"][0]["env"] \
         .append({"name": "PORT", "value": stream_port})
 
+    temp.append((device,docker_command % (device, stream_port)))
+
     with open("daq_pipelines/%s.json" % device, 'w') as output_file:
         json.dump(daq_pipeline_file, output_file, indent=4)
 
     with open("generators/%s.json" % device, 'w') as output_file:
         json.dump(generators_file, output_file, indent=4)
+
+temp = sorted(temp, key=lambda x:x[0])
+with open("generators/start_generators.sh", 'w') as output_file:
+    output_file.write("\n".join((x[1] for x in temp)))
