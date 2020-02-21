@@ -38,11 +38,6 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
 
     auto main_header = get_main_header(msg.data(), msg.size());
 
-    if (main_header.htype != "bsr_m-1.1")
-        throw runtime_error("Wrong protocol for this receiver.");
-    if (main_header.dh_compression != "")
-        throw runtime_error("Data header compression not supported.");
-
     sock_.recv(msg);
     sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
 
@@ -96,13 +91,8 @@ bsread::main_header bsread::BsreadReceiver::get_main_header(
     rapidjson::Document root;
     root.Parse(static_cast<char*>(data), data_len);
     
-
-    return {root["htype"].GetString(),
-            root["pulse_id"].GetInt64(),
-            timestamp(root["global_timestamp"]["sec"].GetUint64(),
-                      root["global_timestamp"]["ns"].GetUint64()),
-            root["hash"].GetString(),
-            ""};
+    return {root["pulse_id"].GetInt64(),
+            root["hash"].GetString()};
 }
 
 void bsread::BsreadReceiver::build_data_header(

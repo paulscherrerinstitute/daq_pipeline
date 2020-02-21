@@ -21,11 +21,8 @@ namespace bsread {
     };
 
     struct main_header {
-        std::string htype;
         int64_t pulse_id;
-        timestamp global_timestamp;
         std::string hash;
-        std::string dh_compression;
     };
 
     static const std::unordered_map<std::string, size_t> bs_type_n_bytes = {
