@@ -53,11 +53,13 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
 
     size_t n_data_bytes = 0;
 
-    for (auto& data : *channels_data_) {
+    for (auto& data_smart_ptr : *channels_data_) {
 
         if (!more)
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
+
+	auto data = data_smart_ptr.get();
 
         data->pulse_id_ =  main_header.pulse_id;
 
@@ -86,19 +88,21 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
     return {main_header.pulse_id, n_data_bytes, channels_data_};
 }
 
+#include "rapidjson/document.h"
+
 bsread::main_header bsread::BsreadReceiver::get_main_header(
         void* data, size_t data_len)
 {
-    Json::Value root;
-    auto json_string = string(static_cast<char*>(data), data_len);
-    json_reader_.parse(json_string, root);
+    rapidjson::Document root;
+    root.Parse(static_cast<char*>(data), data_len);
+    
 
-    return {root["htype"].asString(),
-            root["pulse_id"].asInt64(),
-            timestamp(root["global_timestamp"]["sec"].asUInt64(),
-                      root["global_timestamp"]["ns"].asUInt64()),
-            root["hash"].asString(),
-            root["dh_compression"].asString()};
+    return {root["htype"].GetString(),
+            root["pulse_id"].GetInt64(),
+            timestamp(root["global_timestamp"]["sec"].GetUint64(),
+                      root["global_timestamp"]["ns"].GetUint64()),
+            root["hash"].GetString(),
+            ""};
 }
 
 void bsread::BsreadReceiver::build_data_header(
