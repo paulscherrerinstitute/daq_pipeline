@@ -7,7 +7,7 @@ void debug::ConsoleStats::add_stats(uint64_t pulse_id, const bs_daq::StatsMap& p
 
     auto n_pulses = (*stats_)["n_pulses"];
 
-    if (n_pulses == 5) {
+    if (n_pulses == 100) {
         std::cout << "pulse_id="<< pulse_id << " {";
 
         for (auto& stat: *stats_) {
