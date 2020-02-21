@@ -28,7 +28,7 @@ namespace scylla {
     public:
         ScyllaStore(const std::string& node_addresses);
         void save_data(const bs_daq::MessageData message_data);
-        float get_n_pending_inserts();
+        uint32_t get_n_pending_inserts();
     };
 }
 

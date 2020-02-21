@@ -7,7 +7,7 @@
 namespace debug {
     class ConsoleStats : public bs_daq::BaseStats {
     public:
-        void add_stats(uint64_t pulse_id, const bs_daq::StatsMap& pulse_stats);
+        void add_stats(uint64_t pulse_id, const bs_daq::StatsData& pulse_stats);
     };
 }
 

@@ -112,7 +112,7 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
     }
 }
 
-float scylla::ScyllaStore::get_n_pending_inserts()
+uint32_t scylla::ScyllaStore::get_n_pending_inserts()
 {
-    return static_cast<float>(n_pending_inserts_);
+    return static_cast<uint32_t>(n_pending_inserts_);
 }

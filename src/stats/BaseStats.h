@@ -6,11 +6,11 @@
 namespace bs_daq {
     class BaseStats : public bs_daq::IDataStats {
     protected:
-        std::unique_ptr<bs_daq::StatsMap> stats_ = NULL;
+        StatsData stats_{};
 
     public:
         BaseStats();
-        void add_stats(uint64_t pulse_id, const bs_daq::StatsMap& pulse_stats);
+        void add_stats(uint64_t pulse_id, const StatsData& pulse_stats);
     };
 }
 
