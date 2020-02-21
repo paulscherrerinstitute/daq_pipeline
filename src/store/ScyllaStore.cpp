@@ -56,29 +56,31 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 
     for (auto& channel_data : *message_data.channels_){
 
+	auto data = channel_data.get();
+	
 	auto statement = cass_prepared_bind(prepared_insert_.get());
         
 	cass_statement_bind_string_by_name(statement,
-                "channel_name", channel_data->channel_name_.c_str());
+                "channel_name", data->channel_name_.c_str());
 
         cass_statement_bind_int64_by_name(statement,
-                "pulse_id_mod", channel_data->pulse_id_mod_);
+                "pulse_id_mod", data->pulse_id_mod_);
 
         cass_statement_bind_int64_by_name(statement,
-                "pulse_id", channel_data->pulse_id_);
+                "pulse_id", data->pulse_id_);
 
         cass_statement_bind_bytes_by_name(statement,
                  "data",
-                 reinterpret_cast<uint8_t*>(channel_data->buffer_.get()),
+                 reinterpret_cast<uint8_t*>(data->buffer_.get()),
                  channel_data->buffer_n_bytes_);
 
         cass_statement_bind_string_by_name(statement,
-                "type", channel_data->type_.c_str());
+                "type", data->type_.c_str());
 
         auto cass_shape = cass_collection_new(CASS_COLLECTION_TYPE_LIST,
-                                              channel_data->shape_.size());
+                                              data->shape_.size());
 
-        for (auto shape_element : channel_data->shape_) {
+        for (auto shape_element : data->shape_) {
             cass_collection_append_uint32(cass_shape, shape_element);
         }
 
@@ -88,12 +90,12 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 	cass_collection_free(cass_shape);
        
 	cass_statement_bind_string_by_name(statement,
-                "encoding", channel_data->encoding_.c_str());
+                "encoding", data->encoding_.c_str());
 
         cass_statement_bind_string_by_name(statement,
-                "compression", channel_data->compression_.c_str());
+                "compression", data->compression_.c_str());
 
-        n_pending_inserts_++;
+        //n_pending_inserts_++;
  
 	auto insert_future = cass_session_execute(session_.get(), statement);
 
@@ -101,7 +103,7 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
                 insert_future,
                 [](CassFuture* future, void* data) {
                     // TODO: Read future result and log eventual error.
-                    static_cast<scylla::ScyllaStore*>(data)->n_pending_inserts_--;
+        //            static_cast<scylla::ScyllaStore*>(data)->n_pending_inserts_--;
                     },
                 this);
 
