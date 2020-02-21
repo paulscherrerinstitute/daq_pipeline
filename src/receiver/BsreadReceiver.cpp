@@ -22,8 +22,13 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
     zmq::message_t msg;
     int more;
     size_t more_size = sizeof(more);
-
-    if (!sock_.recv(msg)) {
+    
+    try {
+        if (!sock_.recv(msg)) {
+            return bs_daq::NO_DATA_MESSAGE;
+        }
+    }
+    catch (const zmq::error_t& err) {
         return bs_daq::NO_DATA_MESSAGE;
     }
     sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
