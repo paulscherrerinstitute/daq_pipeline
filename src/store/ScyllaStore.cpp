@@ -56,60 +56,57 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 
     for (auto& channel_data : *message_data.channels_){
 
-	cass_ptr<CassStatement> statement = {
-	    cass_prepared_bind(prepared_insert_.get()),
-	    [](CassStatement *p){ cass_statement_free(p); }
-        };
-        cass_statement_bind_string_by_name(statement.get(),
+	auto statement = cass_prepared_bind(prepared_insert_.get());
+        
+	cass_statement_bind_string_by_name(statement,
                 "channel_name", channel_data->channel_name_.c_str());
 
-        cass_statement_bind_int64_by_name(statement.get(),
+        cass_statement_bind_int64_by_name(statement,
                 "pulse_id_mod", channel_data->pulse_id_mod_);
 
-        cass_statement_bind_int64_by_name(statement.get(),
+        cass_statement_bind_int64_by_name(statement,
                 "pulse_id", channel_data->pulse_id_);
 
-        cass_statement_bind_bytes_by_name(statement.get(),
+        cass_statement_bind_bytes_by_name(statement,
                  "data",
                  reinterpret_cast<uint8_t*>(channel_data->buffer_.get()),
                  channel_data->buffer_n_bytes_);
 
-        cass_statement_bind_string_by_name(statement.get(),
+        cass_statement_bind_string_by_name(statement,
                 "type", channel_data->type_.c_str());
 
-        cass_ptr<CassCollection> cass_shape = {
-                cass_collection_new(CASS_COLLECTION_TYPE_LIST,
-                                    channel_data->shape_.size()),
-                [](CassCollection *p){ cass_collection_free(p); }
-        };
+        auto cass_shape = cass_collection_new(CASS_COLLECTION_TYPE_LIST,
+                                              channel_data->shape_.size());
 
         for (auto shape_element : channel_data->shape_) {
-            cass_collection_append_uint32(cass_shape.get(), shape_element);
+            cass_collection_append_uint32(cass_shape, shape_element);
         }
 
-        cass_statement_bind_collection_by_name(statement.get(),
-                "shape", cass_shape.get());
+        cass_statement_bind_collection_by_name(statement,
+                "shape", cass_shape);
 
-        cass_statement_bind_string_by_name(statement.get(),
+	cass_collection_free(cass_shape);
+       
+	cass_statement_bind_string_by_name(statement,
                 "encoding", channel_data->encoding_.c_str());
 
-        cass_statement_bind_string_by_name(statement.get(),
+        cass_statement_bind_string_by_name(statement,
                 "compression", channel_data->compression_.c_str());
 
         n_pending_inserts_++;
  
-        cass_ptr<CassFuture> insert_future = {
-                cass_session_execute(session_.get(), statement.get()),
-                [](CassFuture *p){ cass_future_free(p); }
-        };
+	auto insert_future = cass_session_execute(session_.get(), statement);
 
         cass_future_set_callback(
-                insert_future.get(),
+                insert_future,
                 [](CassFuture* future, void* data) {
                     // TODO: Read future result and log eventual error.
                     static_cast<scylla::ScyllaStore*>(data)->n_pending_inserts_--;
                     },
                 this);
+
+	cass_future_free(insert_future);
+	cass_statement_free(statement);
     }
 }
 
