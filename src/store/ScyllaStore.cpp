@@ -100,9 +100,9 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
                 insert_future,
                 [](CassFuture* future, void* data) {
                     // TODO: Read future result and log eventual error.
-                    static_cast<scylla::ScyllaStore*>(data)->n_pending_inserts_--;
+                    (*((std::atomic<uint32_t>*)data))--;
                     },
-                this);
+                &n_pending_inserts_);
 
 	cass_future_free(insert_future);
 	cass_statement_free(statement);
