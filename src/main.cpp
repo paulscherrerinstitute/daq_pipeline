@@ -31,14 +31,12 @@ int main() {
     scylla::ScyllaStore store(scylla_hosts);
     auto stats = debug::ConsoleStats();
 
-    auto stats_map = bs_daq::StatsMap();
-
     // Default value to make first iteration statistics nicer.
     f_sec time_iteration = f_sec(0.003);
     f_sec time_add_stats = f_sec(0.003);
 
     std::cout << "[INFO] Start writing loop..." << std::endl;
-
+    int i = 0;
     while (true) {
         auto start_iteration = hres_clock::now();
 
@@ -54,17 +52,21 @@ int main() {
 
         auto start_add_stats = hres_clock::now();
         stats.add_stats(message_data.pulse_id_, {
-                {"iteration", time_iteration.count()},
-                {"get_data", time_get_data.count()},
-                {"save_data", time_save_data.count()},
-                {"add_stats", time_add_stats.count()},
-                {"n_data_bytes", float(message_data.n_data_bytes_)},
-                {"n_pending_inserts", store.get_n_pending_inserts()}
+                time_iteration.count(),
+                time_get_data.count(),
+                time_save_data.count(),
+                time_add_stats.count(),
+                message_data.n_data_bytes_,
+                store.get_n_pending_inserts(),
+		1 // n_pulses
         });
 
         auto end_iteration = hres_clock::now();
         time_add_stats = end_iteration - start_add_stats;
         time_iteration = end_iteration - start_iteration;
+	i++;
+
+        if (i == 30000) return 0;
     }
 
     return 0;

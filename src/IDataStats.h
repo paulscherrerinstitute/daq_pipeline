@@ -7,12 +7,20 @@
 
 namespace bs_daq {
 
-    typedef std::unordered_map<std::string, float> StatsMap;
-
+    struct StatsData {
+	float iteration_;
+	float get_data_;
+	float save_data_;
+	float add_stats_;
+	size_t n_data_bytes_;
+	uint32_t n_pending_inserts_;	
+	uint32_t n_pulses_;	
+    };
+    
     class IDataStats {
     public:
         virtual ~IDataStats() = default;
-        virtual void add_stats(uint64_t pulse_id, const StatsMap& pulse_stats) = 0;
+        virtual void add_stats(uint64_t pulse_id, const StatsData& pulse_stats) = 0;
     };
 
 }
