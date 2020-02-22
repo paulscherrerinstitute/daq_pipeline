@@ -53,7 +53,6 @@ scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses) :
 
 void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 {
-
     for (auto& channel_data : *message_data.channels_){
 
 	auto data = channel_data.get();
@@ -95,8 +94,6 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
         cass_statement_bind_string_by_name(statement,
                 "compression", data->compression_.c_str());
 
-        n_pending_inserts_++;
- 
 	auto insert_future = cass_session_execute(session_.get(), statement);
 
         cass_future_set_callback(
@@ -110,9 +107,11 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 	cass_future_free(insert_future);
 	cass_statement_free(statement);
     }
+
+    n_pending_inserts_.fetch_add(message_data.channels_->size(), std::memory_order_relaxed);
 }
 
 uint32_t scylla::ScyllaStore::get_n_pending_inserts()
 {
-    return static_cast<uint32_t>(n_pending_inserts_);
+    return n_pending_inserts_.load(std::memory_order_relaxed);
 }
