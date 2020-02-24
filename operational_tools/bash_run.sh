@@ -1,0 +1,2 @@
+PORT=$1
+SCYLLA_HOSTS="172.26.120.72,172.26.120.73,172.26.120.74" STREAM_HOST="tcp://sf-daqstress-01:$PORT" ./daq_pipeline
