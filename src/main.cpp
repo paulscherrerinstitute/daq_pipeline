@@ -36,7 +36,7 @@ int main() {
     f_sec time_add_stats = f_sec(0.003);
 
     std::cout << "[INFO] Start writing loop..." << std::endl;
-    int i = 0;
+
     while (true) {
         auto start_iteration = hres_clock::now();
 
@@ -64,9 +64,6 @@ int main() {
         auto end_iteration = hres_clock::now();
         time_add_stats = end_iteration - start_add_stats;
         time_iteration = end_iteration - start_iteration;
-	i++;
-
-        if (i == 30000) return 0;
     }
 
     return 0;
