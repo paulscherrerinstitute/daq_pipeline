@@ -1,4 +1,3 @@
-#include <iostream>
 #include "ScyllaStore.h"
 
 using namespace std;
