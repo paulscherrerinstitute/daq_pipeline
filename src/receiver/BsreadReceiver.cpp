@@ -7,60 +7,86 @@ using namespace std;
 
 
 bsread::BsreadReceiver::BsreadReceiver(string address, int rcvhwm, int sock_type) :
-        ctx_(1),
-        sock_(ctx_, sock_type),
-        source_address_(address)
+    header_buffer_size_(4096),
+    source_address_(address)
 {
     int timeout = 1000;
-    sock_.setsockopt(ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm));
-    sock_.setsockopt(ZMQ_RCVTIMEO, &timeout, sizeof(timeout));
-    sock_.connect(address.c_str());
+    ctx_ = zmq_ctx_new();
+    sock_ = zmq_socket(ctx_, sock_type);
+
+    zmq_setsockopt(sock_, ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm));
+    zmq_setsockopt(sock_, ZMQ_RCVTIMEO, &timeout, sizeof(timeout));
+
+    if (zmq_connect(sock_, address.c_str())) {
+        throw runtime_error(zmq_strerror(zmq_errno()));
+    }
+
+    header_buffer_ = malloc(header_buffer_size_);
+}
+
+bsread::BsreadReceiver::~BsreadReceiver()
+{
+    zmq_close(sock_);
+    zmq_ctx_destroy(ctx_);
+    free(header_buffer_);
 }
 
 bs_daq::MessageData bsread::BsreadReceiver::get_data()
 {
-    zmq::message_t msg;
+    int n_bytes;
     int more;
     size_t more_size = sizeof(more);
-    
-    try {
-        if (!sock_.recv(msg)) {
+
+    n_bytes = zmq_recv(sock_, header_buffer_, header_buffer_size_, 0);
+    zmq_getsockopt(sock_, ZMQ_RCVMORE, &more, &more_size);
+
+    if (n_bytes == -1) {
+        int error_n = zmq_errno();
+        if (error_n == EAGAIN || error_n == EINTR) {
             return bs_daq::NO_DATA_MESSAGE;
+        } else {
+            throw runtime_error(zmq_strerror(error_n));
         }
     }
-    catch (const zmq::error_t& err) {
-        return bs_daq::NO_DATA_MESSAGE;
+    if ((size_t)n_bytes > header_buffer_size_) {
+        throw runtime_error("The received header size exceeds the allocated buffer.");
     }
-    sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
-
     if (!more)
         throw runtime_error("Data header expected after main header.");
 
-    auto main_header = get_main_header(msg.data(), msg.size());
+    auto main_header = get_main_header(header_buffer_, n_bytes);
 
-    sock_.recv(msg);
-    sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+    n_bytes = zmq_recv(sock_, header_buffer_, header_buffer_size_, 0);
+    zmq_getsockopt(sock_, ZMQ_RCVMORE, &more, &more_size);
+
+    if (n_bytes == -1) {
+        throw runtime_error(zmq_strerror(zmq_errno()));
+    }
+    if ((size_t)n_bytes > header_buffer_size_) {
+        throw runtime_error("The received header size exceeds the allocated buffer.");
+    }
 
     if (main_header.hash != channels_data_hash_) {
-        build_data_header(msg.data(), msg.size());
+        build_data_header(header_buffer_, header_buffer_size_);
         channels_data_hash_ = main_header.hash;
     }
 
     size_t n_data_bytes = 0;
-
     for (auto& data_smart_ptr : *channels_data_) {
 
         if (!more)
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
 
-	auto data = data_smart_ptr.get();
+	    auto data = data_smart_ptr.get();
 
         data->pulse_id_ =  main_header.pulse_id;
 
-        data->recv_n_bytes_ = sock_.recv(data->buffer_.get(),
-                                         data->buffer_n_bytes_);
-        sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+        data->recv_n_bytes_ = zmq_recv(sock_,
+                                       data->buffer_.get(),
+                                       data->buffer_n_bytes_,
+                                       0);
+        zmq_getsockopt(sock_, ZMQ_RCVMORE, &more, &more_size);
 
         if (data->recv_n_bytes_ > data->buffer_n_bytes_)
             throw runtime_error("Received more bytes than expected.");
@@ -70,8 +96,8 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
                                 " message terminated prematurely.");
 
         // We omit the channel timestamp because we do not use it.
-        sock_.recv(zmq::mutable_buffer());
-        sock_.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+        zmq_recv(sock_, nullptr, 0, 0);
+        zmq_getsockopt(sock_, ZMQ_RCVMORE, &more, &more_size);
 
         n_data_bytes += data->recv_n_bytes_;
     }

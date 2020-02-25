@@ -1,7 +1,7 @@
 #ifndef BSREAD_RECEIVER_H
 #define BSREAD_RECEIVER_H
 
-#include <zmq.hpp>
+#include <zmq.h>
 #include <utility>
 #include <string>
 #include <memory>
@@ -42,14 +42,18 @@ namespace bsread {
 
     class BsreadReceiver : public bs_daq::IDataReceiver {
 
-        zmq::context_t ctx_;
-        zmq::socket_t sock_;
+        void* ctx_ = nullptr;
+        void* sock_ = nullptr;
+        void* header_buffer_ = nullptr;
+        size_t header_buffer_size_;
+
         std::string source_address_;
 
         Json::Reader json_reader_;
 
     public:
         BsreadReceiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
+        ~BsreadReceiver();
         bs_daq::MessageData get_data();
 
     private:
