@@ -152,13 +152,13 @@ void bsread::BsreadReceiver::build_data_header(
 
         size_t buffer_n_bytes = n_data_points * bs_type_n_bytes.at(type);
 
-// TODO: This is stupid. Strings should also be able to tell the needed buffer size in advance.
+// TODO: Stupid. Needs bsread protocol fix first.
         if (type == "string") {
             buffer_n_bytes *= 1024;
         }
 
-// TODO: Implement pulse_id_mod calculation.
-        int64_t pulse_id_mod = 0;
+        // Target partition is 200MB.
+        int64_t pulse_id_mod = (buffer_n_bytes * 100) / (200 * 1024 * 1024);
 
         string encoding = "little";
         if (channel.HasMember("encoding")) {
