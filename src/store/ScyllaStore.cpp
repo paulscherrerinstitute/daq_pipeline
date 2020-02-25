@@ -95,7 +95,7 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 
         cass_future_set_callback(
                 insert_future,
-                [](CassFuture* future, void* data) {
+                [](__attribute__((unused)) CassFuture* future, void* data) {
                     // TODO: Read future result and log eventual error.
                     (*((std::atomic<uint32_t>*)data))--;
                     },

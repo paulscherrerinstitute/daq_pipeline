@@ -1,5 +1,6 @@
 #include <iostream>
 #include <csignal>
+#include <chrono>
 #include "receiver/BsreadReceiver.h"
 #include "stats/ConsoleStats.h"
 #include "store/ScyllaStore.h"

@@ -74,9 +74,10 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
     size_t n_data_bytes = 0;
     for (auto& data_smart_ptr : *channels_data_) {
 
-        if (!more)
+        if (!more) {
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
+        }
 
 	    auto data = data_smart_ptr.get();
 
