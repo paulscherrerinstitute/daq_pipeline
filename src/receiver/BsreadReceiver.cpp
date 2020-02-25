@@ -1,5 +1,4 @@
 #include "BsreadReceiver.h"
-#include "json.h"
 
 #include <iostream>
 
@@ -125,24 +124,32 @@ bsread::main_header bsread::BsreadReceiver::get_main_header(
 void bsread::BsreadReceiver::build_data_header(
         void* data, size_t data_len)
 {
-    Json::Value root;
-    auto json_string = string(static_cast<char*>(data), data_len);
-    json_reader_.parse(json_string, root);
+    rapidjson::Document root;
+    root.Parse(static_cast<char*>(data), data_len);
 
     channels_data_ = make_shared<bs_daq::Channels>();
 
-    for(Json::Value& channel : root["channels"]) {
+    for(auto const& channel : root["channels"].GetArray()) {
 
         size_t n_data_points = 1;
         std::vector<uint32_t> shape(2);
-        for(Json::Value& dimension : channel.get("shape", {1})) {
-            auto dimension_len = dimension.asUInt();
 
-            n_data_points *= dimension_len;
-            shape.push_back(dimension_len);
+        if (channel.HasMember("shape")) {
+            for (auto const& dimension : channel["shape"].GetArray()) {
+                auto dimension_len = dimension.GetUint();
+
+                n_data_points *= dimension_len;
+                shape.push_back(dimension_len);
+            }
+        } else {
+            shape.push_back(1);
         }
 
-        auto type = channel.get("type", "float64").asString();
+        string type = "float64";
+        if (channel.HasMember("type")) {
+            type = channel["type"].GetString();
+        }
+
         size_t buffer_n_bytes = n_data_points * bs_type_n_bytes.at(type);
 
 // TODO: This is stupid. Strings should also be able to tell the needed buffer size in advance.
@@ -153,13 +160,23 @@ void bsread::BsreadReceiver::build_data_header(
 // TODO: Implement pulse_id_mod calculation.
         int64_t pulse_id_mod = 0;
 
+        string encoding = "little";
+        if (channel.HasMember("encoding")) {
+            encoding = channel["encoding"].GetString();
+        }
+
+        string compression = "none";
+        if (channel.HasMember("compression")) {
+            compression = channel["compression"].GetString();
+        }
+
         channels_data_->push_back(
                 make_unique<bs_daq::ChannelData>(
-                    channel["name"].asString(),
+                    channel["name"].GetString(),
                     type,
                     shape,
-                    channel.get("encoding", "little").asString(),
-                    channel.get("compression", "none").asString(),
+                    encoding,
+                    compression,
                     buffer_n_bytes,
                     pulse_id_mod)
         );

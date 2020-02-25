@@ -8,7 +8,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include "../external/json.h"
 #include "../IDataReceiver.h"
 
 namespace bsread {
@@ -46,10 +45,7 @@ namespace bsread {
         void* sock_ = nullptr;
         void* header_buffer_ = nullptr;
         size_t header_buffer_size_;
-
         std::string source_address_;
-
-        Json::Reader json_reader_;
 
     public:
         BsreadReceiver(std::string address, int rcvhwm=10, int sock_typ=ZMQ_PULL);
