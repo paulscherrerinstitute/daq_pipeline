@@ -56,7 +56,7 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
                 "channel_name", data->channel_name_.c_str());
 
         cass_statement_bind_int64_by_name(statement,
-                "pulse_id_mod", data->pulse_id_mod_);
+                "pulse_id_mod", (int64_t)(data->pulse_id_ / data->pulse_id_div_));
 
         cass_statement_bind_int64_by_name(statement,
                 "pulse_id", data->pulse_id_);

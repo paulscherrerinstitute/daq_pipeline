@@ -158,7 +158,7 @@ void bsread::BsreadReceiver::build_data_header(
         }
 
         // Target partition is 200MB.
-        int64_t pulse_id_mod = (buffer_n_bytes * 100) / (200 * 1024 * 1024);
+        int64_t pulse_id_div = (buffer_n_bytes * 100) / (200 * 1024 * 1024);
 
         string encoding = "little";
         if (channel.HasMember("encoding")) {
@@ -172,13 +172,13 @@ void bsread::BsreadReceiver::build_data_header(
 
         channels_data_->push_back(
                 make_unique<bs_daq::ChannelData>(
-                    channel["name"].GetString(),
-                    type,
-                    shape,
-                    encoding,
-                    compression,
-                    buffer_n_bytes,
-                    pulse_id_mod)
+                        channel["name"].GetString(),
+                        type,
+                        shape,
+                        encoding,
+                        compression,
+                        buffer_n_bytes,
+                        pulse_id_div)
         );
     }
 }
