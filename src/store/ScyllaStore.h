@@ -19,14 +19,15 @@ namespace scylla {
     class ScyllaStore : public bs_daq::IDataStore {
 
     protected:
-        cass_ptr<CassCluster> cluster_ = {NULL, NULL};
-        cass_ptr<CassSession> session_ = {NULL, NULL};
-        cass_ptr<const CassPrepared> prepared_insert_ = {NULL, NULL};
+        CassCluster* cluster_ = nullptr;
+        CassSession* session_ = nullptr;
+        const CassPrepared* prepared_insert_ = nullptr;
 
         std::atomic<uint32_t> n_pending_inserts_;
 
     public:
         ScyllaStore(const std::string& node_addresses);
+        ~ScyllaStore();
         void save_data(const bs_daq::MessageData message_data);
         uint32_t get_n_pending_inserts();
     };

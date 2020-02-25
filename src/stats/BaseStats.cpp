@@ -7,8 +7,6 @@ void bs_daq::BaseStats::add_stats(uint64_t pulse_id, const bs_daq::StatsData& pu
 {
     stats_.iteration_ += pulse_stats.iteration_;
     stats_.get_data_ += pulse_stats.get_data_;
-    stats_.save_data_ += pulse_stats.save_data_;
-    stats_.add_stats_ += pulse_stats.add_stats_;
     stats_.n_data_bytes_ += pulse_stats.n_data_bytes_;
     stats_.n_pending_inserts_ += pulse_stats.n_pending_inserts_;
     stats_.n_pulses_ += pulse_stats.n_pulses_;

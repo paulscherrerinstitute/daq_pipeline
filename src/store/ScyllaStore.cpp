@@ -6,23 +6,16 @@ using namespace std;
 scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses) :
         n_pending_inserts_(0)
 {
-    session_ = {
-            cass_session_new(),
-            [](CassSession *p){ cass_session_free(p); }
-    };
+    session_ = cass_session_new();
+    cluster_ = cass_cluster_new();
 
-    cluster_ = {
-            cass_cluster_new(),
-            [](CassCluster *p){ cass_cluster_free(p); }
-    };
-
-    cass_cluster_set_contact_points(cluster_.get(), node_addresses.c_str());
-    cass_cluster_set_token_aware_routing(cluster_.get(), cass_true);
-    cass_cluster_set_num_threads_io(cluster_.get(), 1);
-    cass_cluster_set_queue_size_io(cluster_.get(), 32000);
+    cass_cluster_set_contact_points(cluster_, node_addresses.c_str());
+    cass_cluster_set_token_aware_routing(cluster_, cass_true);
+    cass_cluster_set_num_threads_io(cluster_, 1);
+    cass_cluster_set_queue_size_io(cluster_, 32000);
 
     cass_ptr<CassFuture> connect_future({
-        cass_session_connect(session_.get(), cluster_.get()),
+        cass_session_connect(session_, cluster_),
         [](CassFuture *p){ cass_future_free(p); }
     });
     auto connection_status = cass_future_error_code(connect_future.get());
@@ -35,7 +28,7 @@ scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses) :
     }
 
     cass_ptr<CassFuture> prepared_future = {
-            cass_session_prepare(session_.get(), INSERT_STATEMENT.c_str()),
+            cass_session_prepare(session_, INSERT_STATEMENT.c_str()),
             [](CassFuture *p){ cass_future_free(p); }
     };
     auto prepared_status = cass_future_error_code(prepared_future.get());
@@ -45,10 +38,14 @@ scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses) :
         throw runtime_error("Cannot prepare statement on cluster.");
     }
 
-    prepared_insert_ = {
-            cass_future_get_prepared(prepared_future.get()),
-            [](const CassPrepared *p){ cass_prepared_free(p); }
-    };
+    prepared_insert_ = cass_future_get_prepared(prepared_future.get());
+}
+
+scylla::ScyllaStore::~ScyllaStore()
+{
+    cass_prepared_free(prepared_insert_);
+    cass_session_free(session_);
+    cass_cluster_free(cluster_);
 }
 
 void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
@@ -57,7 +54,7 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 
 	auto data = channel_data.get();
 	
-	auto statement = cass_prepared_bind(prepared_insert_.get());
+	auto statement = cass_prepared_bind(prepared_insert_);
         
 	cass_statement_bind_string_by_name(statement,
                 "channel_name", data->channel_name_.c_str());
@@ -94,7 +91,7 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
         cass_statement_bind_string_by_name(statement,
                 "compression", data->compression_.c_str());
 
-	auto insert_future = cass_session_execute(session_.get(), statement);
+	auto insert_future = cass_session_execute(session_, statement);
 
         cass_future_set_callback(
                 insert_future,
