@@ -83,15 +83,15 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
         cass_statement_bind_collection_by_name(statement,
                 "shape", cass_shape);
 
-	cass_collection_free(cass_shape);
-       
-	cass_statement_bind_string_by_name(statement,
+        cass_collection_free(cass_shape);
+
+        cass_statement_bind_string_by_name(statement,
                 "encoding", data->encoding_.c_str());
 
         cass_statement_bind_string_by_name(statement,
                 "compression", data->compression_.c_str());
 
-	auto insert_future = cass_session_execute(session_, statement);
+	    auto insert_future = cass_session_execute(session_, statement);
 
         cass_future_set_callback(
                 insert_future,
@@ -101,14 +101,14 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
                     },
                 &n_pending_inserts_);
 
-	cass_future_free(insert_future);
-	cass_statement_free(statement);
+        cass_future_free(insert_future);
+        cass_statement_free(statement);
     }
 
-    n_pending_inserts_.fetch_add(message_data.channels_->size(), std::memory_order_relaxed);
+    n_pending_inserts_ += message_data.channels_->size();
 }
 
 uint32_t scylla::ScyllaStore::get_n_pending_inserts()
 {
-    return n_pending_inserts_.load(std::memory_order_relaxed);
+    return n_pending_inserts_;
 }
