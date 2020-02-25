@@ -32,8 +32,7 @@ int main() {
     auto stats = debug::ConsoleStats();
 
     // Default value to make first iteration statistics nicer.
-    f_sec time_iteration = f_sec(0.003);
-    f_sec time_add_stats = f_sec(0.003);
+    f_sec time_iteration = f_sec(0.01);
 
     std::cout << "[INFO] Start writing loop..." << std::endl;
 
@@ -46,24 +45,17 @@ int main() {
         }
         f_sec time_get_data = hres_clock::now() - start_iteration;
 
-        auto start_save_data = hres_clock::now();
         store.save_data(message_data);
-        f_sec time_save_data = hres_clock::now() - start_save_data;
 
-        auto start_add_stats = hres_clock::now();
         stats.add_stats(message_data.pulse_id_, {
                 time_iteration.count(),
                 time_get_data.count(),
-                time_save_data.count(),
-                time_add_stats.count(),
                 message_data.n_data_bytes_,
                 store.get_n_pending_inserts(),
 		1 // n_pulses
         });
 
-        auto end_iteration = hres_clock::now();
-        time_add_stats = end_iteration - start_add_stats;
-        time_iteration = end_iteration - start_iteration;
+        time_iteration = hres_clock::now() - start_iteration;
     }
 
     return 0;

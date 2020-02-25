@@ -10,8 +10,6 @@ namespace bs_daq {
     struct StatsData {
 	float iteration_;
 	float get_data_;
-	float save_data_;
-	float add_stats_;
 	size_t n_data_bytes_;
 	uint32_t n_pending_inserts_;	
 	uint32_t n_pulses_;	
