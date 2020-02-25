@@ -20,8 +20,6 @@ scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses) :
     auto connection_status = cass_future_error_code(connect_future.get());
 
     if (connection_status != CASS_OK) {
-
-// TODO: In case this happens often, extract the error message with cass_future_error_message.
         throw runtime_error("Cannot connect to cluster. "
                             "Please check network and provided hosts.");
     }
@@ -33,7 +31,6 @@ scylla::ScyllaStore::ScyllaStore(const std::string& node_addresses) :
     auto prepared_status = cass_future_error_code(prepared_future.get());
 
     if (prepared_status != CASS_OK) {
-// TODO: Maybe a more detailed error message?
         throw runtime_error("Cannot prepare statement on cluster.");
     }
 
