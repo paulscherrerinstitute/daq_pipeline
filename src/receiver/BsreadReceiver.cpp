@@ -7,7 +7,8 @@ using namespace std;
 
 bsread::BsreadReceiver::BsreadReceiver(string address, int rcvhwm, int sock_type) :
     header_buffer_size_(4096),
-    source_address_(address)
+    source_address_(address),
+    channels_data_()
 {
     int timeout = 1000;
     ctx_ = zmq_ctx_new();
@@ -25,6 +26,11 @@ bsread::BsreadReceiver::BsreadReceiver(string address, int rcvhwm, int sock_type
 
 bsread::BsreadReceiver::~BsreadReceiver()
 {
+    for (auto& channel : channels_data_){
+        free((void*)channel.buffer_);
+    }
+    channels_data_.clear();
+
     zmq_close(sock_);
     zmq_ctx_destroy(ctx_);
     free(header_buffer_);
