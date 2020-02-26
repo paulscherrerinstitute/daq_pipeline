@@ -140,7 +140,7 @@ void bsread::BsreadReceiver::build_data_header(
     for(auto const& channel : root["channels"].GetArray()) {
 
         size_t n_data_points = 1;
-        std::vector<uint32_t> shape(2);
+        std::vector<uint32_t> shape;
 
         if (channel.HasMember("shape")) {
             for (auto const& dimension : channel["shape"].GetArray()) {
