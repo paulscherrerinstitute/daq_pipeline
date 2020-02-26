@@ -121,10 +121,10 @@ bsread::main_header bsread::BsreadReceiver::get_main_header(
 
     auto hash_start = json_string.find("\"hash\": \"") + 9;
     auto hash_end = json_string.find("\"", hash_start);
-    string hash = json_string.substr(hash_start, hash_start-hash_end);
+    string hash = json_string.substr(hash_start, hash_end-hash_start);
 
     auto pulse_start = json_string.find("\"pulse_id\": ") + 12;
-    auto pulse_end = json_string.find(" ", pulse_start);
+    auto pulse_end = json_string.find(",", pulse_start);
     string pulse_id_string = json_string.substr(pulse_start, pulse_end-pulse_start);
     int64_t pulse_id = stoll(pulse_id_string);
 
