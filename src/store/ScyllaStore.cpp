@@ -89,10 +89,7 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 
         cass_future_set_callback(
                 insert_future,
-                [](__attribute__((unused)) CassFuture* future, void* data) {
-                    // TODO: Read future result and log eventual error.
-                    (*((std::atomic<uint32_t>*)data))--;
-                    },
+                insert_callback,
                 &n_pending_inserts_);
 
         cass_future_free(insert_future);
@@ -100,6 +97,11 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
     }
 
     n_pending_inserts_ += message_data.channels_->size();
+}
+
+void scylla::insert_callback(__attribute__((unused)) CassFuture* future, void* data) {
+    // TODO: Read future result and log eventual error.
+    (*((std::atomic<uint32_t>*)data))--;
 }
 
 uint32_t scylla::ScyllaStore::get_n_pending_inserts()

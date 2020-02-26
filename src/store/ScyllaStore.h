@@ -14,6 +14,8 @@ namespace scylla {
         "data, type, shape, encoding, compression) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 
+    void insert_callback(__attribute__((unused)) CassFuture* future, void* data);
+
     template<class T> using cass_ptr = std::unique_ptr<T, void (*)(T *)>;
 
     class ScyllaStore : public bs_daq::IDataStore {
