@@ -1,4 +1,5 @@
 #include "BsreadReceiver.h"
+#include "rapidjson/document.h"
 
 #include <iostream>
 
@@ -113,16 +114,21 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
     return {main_header.pulse_id, n_data_bytes, &channels_data_};
 }
 
-#include "rapidjson/document.h"
-
 bsread::main_header bsread::BsreadReceiver::get_main_header(
         void* data, size_t data_len)
 {
-    rapidjson::Document root;
-    root.Parse(static_cast<char*>(data), data_len);
-    
-    return {root["pulse_id"].GetInt64(),
-            root["hash"].GetString()};
+    string json_string(static_cast<char*>(data), data_len);
+
+    auto hash_start = json_string.find("\"hash\": \"") + 9;
+    auto hash_end = json_string.find("\"", hash_start);
+    string hash = json_string.substr(hash_start, hash_start-hash_end);
+
+    auto pulse_start = json_string.find("\"pulse_id\": ") + 12;
+    auto pulse_end = json_string.find(" ", pulse_start);
+    string pulse_id_string = json_string.substr(pulse_start, pulse_end-pulse_start);
+    int64_t pulse_id = stoll(pulse_id_string);
+
+    return {pulse_id, hash};
 }
 
 void bsread::BsreadReceiver::build_data_header(
