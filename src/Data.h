@@ -16,7 +16,7 @@ namespace bs_daq {
         const std::string encoding_;
         const std::string compression_;
         const size_t buffer_n_bytes_;
-        const char* buffer_;
+        char* const buffer_;
         const int64_t pulse_id_div_;
 
         // Attributes set for each received message.

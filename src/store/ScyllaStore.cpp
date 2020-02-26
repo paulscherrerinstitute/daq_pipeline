@@ -46,33 +46,31 @@ scylla::ScyllaStore::~ScyllaStore()
 
 void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
 {
-    for (auto& channel_data : *message_data.channels_){
+    for (auto& data : *(message_data.channels_)){
 
-	auto data = channel_data.get();
-	
-	auto statement = cass_prepared_bind(prepared_insert_);
-        
-	cass_statement_bind_string_by_name(statement,
-                "channel_name", data->channel_name_.c_str());
+        auto statement = cass_prepared_bind(prepared_insert_);
+
+        cass_statement_bind_string_by_name(statement,
+                "channel_name", data.channel_name_.c_str());
 
         cass_statement_bind_int64_by_name(statement,
-                "pulse_id_mod", (int64_t)(data->pulse_id_ / data->pulse_id_div_));
+                "pulse_id_mod", (int64_t)(data.pulse_id_ / data.pulse_id_div_));
 
         cass_statement_bind_int64_by_name(statement,
-                "pulse_id", data->pulse_id_);
+                "pulse_id", data.pulse_id_);
 
         cass_statement_bind_bytes_by_name(statement,
                  "data",
-                 reinterpret_cast<uint8_t*>(data->buffer_.get()),
-                 channel_data->buffer_n_bytes_);
+                 reinterpret_cast<uint8_t*>(data.buffer_),
+                 data.buffer_n_bytes_);
 
         cass_statement_bind_string_by_name(statement,
-                "type", data->type_.c_str());
+                "type", data.type_.c_str());
 
         auto cass_shape = cass_collection_new(CASS_COLLECTION_TYPE_LIST,
-                                              data->shape_.size());
+                                              data.shape_.size());
 
-        for (auto shape_element : data->shape_) {
+        for (auto shape_element : data.shape_) {
             cass_collection_append_uint32(cass_shape, shape_element);
         }
 
@@ -82,10 +80,10 @@ void scylla::ScyllaStore::save_data(const bs_daq::MessageData message_data)
         cass_collection_free(cass_shape);
 
         cass_statement_bind_string_by_name(statement,
-                "encoding", data->encoding_.c_str());
+                "encoding", data.encoding_.c_str());
 
         cass_statement_bind_string_by_name(statement,
-                "compression", data->compression_.c_str());
+                "compression", data.compression_.c_str());
 
 	    auto insert_future = cass_session_execute(session_, statement);
 
