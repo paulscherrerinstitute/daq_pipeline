@@ -30,7 +30,7 @@ int main() {
 
     auto receiver = bsread::BsreadReceiver(stream_host);
     scylla::ScyllaStore store(scylla_hosts);
-    auto stats = debug::ConsoleStats(stream_host, 100);
+    auto stats = debug::ConsoleStats(std::string(stream_host).substr(6), 100);
 
     // Default value to make first iteration statistics nicer.
     f_sec time_iteration = f_sec(0.01);
