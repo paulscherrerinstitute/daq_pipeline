@@ -10,7 +10,8 @@ debug::ConsoleStats::ConsoleStats(const std::string& device_name, size_t n_pulse
 void debug::ConsoleStats::add_stats(uint64_t pulse_id, const bs_daq::StatsData& pulse_stats) {
     BaseStats::add_stats(pulse_id, pulse_stats);
 
-    std::cout << std::fixed << std::setw( 5 ) << std::setprecision( 3 );
+    std::cout << std::fixed << std::setfill('0');
+    std::cout << std::setw( 5 ) << std::setprecision( 3 );
 
     if (stats_.n_pulses_ == n_pulses_output_) {
         std::cout << device_name_ << " ";
