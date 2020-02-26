@@ -7,7 +7,7 @@ debug::ConsoleStats::ConsoleStats(const std::string& device_name, size_t n_pulse
     n_pulses_output_(n_pulses_output)
 {
     std::cout << std::fixed << std::setfill('0');
-    std::cout << std::setw( 5 ) << std::setprecision( 3 );
+    std::cout << std::setw( 6 ) << std::setprecision( 3 );
 }
 
 void debug::ConsoleStats::add_stats(uint64_t pulse_id, const bs_daq::StatsData& pulse_stats) {
