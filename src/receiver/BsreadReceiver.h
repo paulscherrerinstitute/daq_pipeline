@@ -56,7 +56,7 @@ namespace bsread {
         main_header get_main_header(void* data, size_t data_len);
         void build_data_header(void* data, size_t data_len);
 
-        std::shared_ptr<bs_daq::Channels> channels_data_;
+        std::vector<bs_daq::ChannelData> channels_data_;
         std::string channels_data_hash_;
     };
 }

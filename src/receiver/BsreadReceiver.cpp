@@ -71,24 +71,22 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
     }
 
     size_t n_data_bytes = 0;
-    for (auto& data_smart_ptr : *channels_data_) {
+    for (auto& data : channels_data_) {
 
         if (!more) {
             throw runtime_error("Invalid message format. The multipart"
                                 " message terminated prematurely.");
         }
 
-	    auto data = data_smart_ptr.get();
+        data.pulse_id_ =  main_header.pulse_id;
 
-        data->pulse_id_ =  main_header.pulse_id;
-
-        data->recv_n_bytes_ = zmq_recv(sock_,
-                                       data->buffer_.get(),
-                                       data->buffer_n_bytes_,
+        data.recv_n_bytes_ = zmq_recv(sock_,
+                                      (void*)data.buffer_,
+                                       data.buffer_n_bytes_,
                                        0);
         zmq_getsockopt(sock_, ZMQ_RCVMORE, &more, &more_size);
 
-        if (data->recv_n_bytes_ > data->buffer_n_bytes_)
+        if (data.recv_n_bytes_ > data.buffer_n_bytes_)
             throw runtime_error("Received more bytes than expected.");
 
         if (!more)
@@ -99,14 +97,14 @@ bs_daq::MessageData bsread::BsreadReceiver::get_data()
         zmq_recv(sock_, nullptr, 0, 0);
         zmq_getsockopt(sock_, ZMQ_RCVMORE, &more, &more_size);
 
-        n_data_bytes += data->recv_n_bytes_;
+        n_data_bytes += data.recv_n_bytes_;
     }
 
     if (more)
         throw runtime_error("Invalid message format. The multipart message"
                             " has too many parts. Check sender.");
 
-    return {main_header.pulse_id, n_data_bytes, channels_data_};
+    return {main_header.pulse_id, n_data_bytes, &channels_data_};
 }
 
 #include "rapidjson/document.h"
@@ -127,7 +125,11 @@ void bsread::BsreadReceiver::build_data_header(
     rapidjson::Document root;
     root.Parse(static_cast<char*>(data), data_len);
 
-    channels_data_ = make_shared<bs_daq::Channels>();
+    // Deallocate the buffers and clean the vector.
+    for (auto& channel : channels_data_){
+        free((void*)channel.buffer_);
+    }
+    channels_data_.clear();
 
     for(auto const& channel : root["channels"].GetArray()) {
 
@@ -170,8 +172,8 @@ void bsread::BsreadReceiver::build_data_header(
             compression = channel["compression"].GetString();
         }
 
-        channels_data_->push_back(
-                make_unique<bs_daq::ChannelData>(
+        channels_data_.push_back(
+                bs_daq::ChannelData(
                         channel["name"].GetString(),
                         type,
                         shape,
