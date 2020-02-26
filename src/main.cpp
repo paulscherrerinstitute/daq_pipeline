@@ -41,7 +41,7 @@ int main() {
         auto start_iteration = hres_clock::now();
 
         auto message_data = receiver.get_data();
-        if (message_data.pulse_id_ == bs_daq::NO_DATA_MESSAGE.pulse_id_) {
+        if (message_data.channels_ == nullptr) {
             continue;
         }
         f_sec time_get_data = hres_clock::now() - start_iteration;
