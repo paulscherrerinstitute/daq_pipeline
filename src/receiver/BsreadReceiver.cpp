@@ -172,7 +172,7 @@ void bsread::BsreadReceiver::build_data_header(
         }
 
         // Target partition is 200MB.
-        int64_t pulse_id_div = (200 * 1024 * 1024) / (buffer_n_bytes * 100);
+        int64_t pulse_id_div = (200 * 1024 * 1024) / buffer_n_bytes;
 
         string encoding = "little";
         if (channel.HasMember("encoding")) {
